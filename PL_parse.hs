@@ -74,13 +74,16 @@ form = (onePlace `bind` \a ->
        lit ')' `bind` \_ ->
        ret $ "(Pred " ++ [a] ++ " " ++ b ++ ")")
        `plus` 
-       (quant `bind` \a -> 
-       lit '.' `bind` \_ -> 
-       form `bind` \b -> 
+       (lit '(' `bind` \_ ->
+       quant `bind` \a -> 
+       form `bind` \b ->
+       lit ')' `bind` \_ ->
        ret $ "(Quant " ++ a ++ " " ++ b ++ ")")
        `plus`
-       (neg `bind` \_ ->
+       (lit '(' `bind` \_ ->
+       neg `bind` \_ ->
        form `bind` \a -> 
+       lit ')' `bind` \_ ->
        ret $ "(Neg " ++ a ++ ")")
        `plus`
        (lit '(' `bind` \_ ->
@@ -101,4 +104,4 @@ gimme :: [(String, String)] -> String
 gimme [] = "oops"
 gimme ((x,y):xs) = x
 
-main = putStrLn . gimme $ parse "~e(x)&o(x)"
+main = putStrLn . gimme $ parse "(~e(x))&o(x)"
