@@ -2,11 +2,12 @@ module Main (main) where
 import           Data.Char
 import           Data.List
 
-data Term = Con Int | Var Char | Pro String
+data Term = Con Char | Var Char | Pro String
 data Formula = Pred(Char, Term)
              | Neg Formula
              | Exists(Term, Formula)
              | Conj(Formula, Formula)
+             | None
 
 -- monadic bits
 type M a = String -> [(a, String)]
@@ -53,6 +54,12 @@ conj = lit '&'
 neg :: M Char
 neg = lit '~'
 
+-- constants (i.e. integers)
+con :: M Term
+con =
+  (item `filt` \a -> isDigit a) `bind` \a ->
+    ret $ Con a
+
 -- variables
 var :: M Term
 var =
@@ -68,7 +75,7 @@ pro =
 
 -- terms
 term :: M Term
-term = pro `plus` var
+term = con `plus` var `plus` pro
 
 -- formulae
 form :: M Formula
@@ -103,34 +110,86 @@ form =
 data Node = Term | Formula
 
 showTerm :: Term -> String
-showTerm (Con n) = show n
-showTerm (Var v) = [v]
-showTerm (Pro p) = p
+showTerm (Con n) = "[.Con " ++ show n ++ " ]"
+showTerm (Var v) = "[.Var " ++ [v] ++ " ]"
+showTerm (Pro p) = "[.Pro " ++ p ++ " ]"
 
 showFormula :: Formula -> String
-showFormula (Pred(a, b)) =
-  "[.Pred " ++ [a] ++ " " ++ showTerm b ++ " ]"
-showFormula (Neg f) =
-  "[.Neg " ++ showFormula f ++ " ]"
-showFormula (Exists(var, f)) =
-  "[.Exists " ++ showTerm var ++ " " ++ showFormula f ++ " ]"
-showFormula (Conj(f1, f2)) =
-  "[.Conj " ++ showFormula f1 ++ " " ++ showFormula f2 ++ " ]"
+showFormula x = case x of
+  Pred(a, b) ->
+    "[.Pred " ++ [a] ++ " " ++ showTerm b ++ " ]"
+  Neg f ->
+    "[.Neg " ++ showFormula f ++ " ]"
+  Exists(var, f) ->
+    "[.Exists " ++ showTerm var ++ " " ++ showFormula f ++ " ]"
+  Conj(f1, f2) ->
+    "[.Conj " ++ showFormula f1 ++ " " ++ showFormula f2 ++ " ]"
+  None -> "SORRY, couldn't parse that!! :("
 
 -- IO
--- nice test case: (~  ((Ex (~e( x) )) & o ( x  ) ))
+-- nice test case: (~  ((Ex (~e( x) )) & o ( p0  ) ))
 clean :: String -> String
 clean = filter (/=' ')
 
 parse :: M Formula
 parse = form . clean
 
-gimme :: [(Formula, String)] -> String
-gimme [] = "oops"
-gimme ((x, y):xs) = "\\Tree " ++ showFormula x
+gimme :: [(Formula, String)] -> Formula
+gimme [] = None
+gimme ((x, y):xs) = x
 
 main :: IO ()
 main = do
   putStrLn "gimme PLA"
   input <- getLine
-  putStrLn . gimme $ parse input
+  putStrLn $ showFormula $ gimme $ parse input
+
+-- interpreter
+type Env = Char -> Int
+type Stack = [Int]
+type Prop = Stack -> [Stack]
+
+domain :: [Int]
+domain = [1..4]
+
+evalTerm :: Term -> Env -> Stack -> Int
+evalTerm t e s = case t of
+  Con a -> read [a]
+  Var v -> e v
+  Pro (p:n) -> s !! read n
+
+switch :: Env -> Int -> Char -> Char -> Int
+switch e x var u = if u == var then x else e u
+
+eval :: Formula -> Env -> Prop
+eval x e s = case x of
+  Pred(a, b) ->
+    if a == 'e'
+    then (liftP even) t s
+    else (liftP odd) t s
+      where t = evalTerm b e s
+  Neg f ->
+    (negP $ eval f e) s
+  Conj(f1, f2) ->
+    andP (eval f1 e) (eval f2 e) s
+  Exists(Var v, f) ->
+    exP (\x -> eval f (switch e x v)) s
+  None ->
+    [[666]]
+
+liftP :: (Int -> Bool) -> Int -> Prop
+liftP f x s = if f x then [s] else []
+
+negP :: Prop -> Prop
+negP p s = case p s of
+  [] -> [s]
+  _  -> []
+
+andP :: Prop -> Prop -> Prop
+andP l r s = concat [r s' | s' <- l s]
+
+exP :: (Int -> Prop) -> Prop
+exP p s = concat [p x (s ++ [x]) | x <- domain]
+
+interpret :: String -> [Stack]
+interpret input = (eval $ gimme $ parse input) (\_ -> -666) []
