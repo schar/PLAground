@@ -78,7 +78,7 @@ form = (onePlace `bind` \a ->
        quant `bind` \a -> 
        form `bind` \b ->
        lit ')' `bind` \_ ->
-       ret $ "(Quant " ++ a ++ " " ++ b ++ ")")
+       ret $ "(" ++ a ++ " " ++ b ++ ")")
        `plus`
        (lit '(' `bind` \_ ->
        neg `bind` \_ ->
@@ -104,4 +104,4 @@ gimme :: [(String, String)] -> String
 gimme [] = "oops"
 gimme ((x,y):xs) = x
 
-main = putStrLn . gimme $ parse "(~e(x))&o(x)"
+main = putStrLn . gimme $ parse "  (~  (Ex((~e( x) ) & o ( x  ) ) ))"
