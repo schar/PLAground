@@ -125,16 +125,17 @@ form =
 data Node = Term | Formula
 
 showTerm :: Term -> String
-showTerm (Con n) = "[.Con " ++ show n ++ " ]"
-showTerm (Var v) = "[.Var " ++ [v] ++ " ]"
-showTerm (Pro p) = "[.Pro " ++ p ++ " ]"
+showTerm x = case x of
+  Con n -> "[.Con " ++ [n] ++ " ]"
+  Var v -> "[.Var " ++ [v] ++ " ]"
+  Pro p -> "[.Pro " ++ p ++ " ]"
 
 showFormula :: Formula -> String
 showFormula x = case x of
   Pred(a, b) ->
     "[.Pred " ++ [a] ++ " " ++ showTerm b ++ " ]"
   Rel(a, (b, c)) ->
-    "[.Rel " ++ a ++ " " ++ "{(" ++ showTerm b ++ ", " ++ showTerm c ++ ")} ]"
+    "[.Rel " ++ a ++ " [.Pair " ++ showTerm b ++ " " ++ showTerm c ++ " ] ]"
   Neg f ->
     "[.Neg " ++ showFormula f ++ " ]"
   Exists(var, f) ->
