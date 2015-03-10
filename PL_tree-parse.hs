@@ -1,19 +1,39 @@
 module Main (main) where
+import           Control.Monad
 import           Data.Char
 import           Data.List
 
 main :: IO ()
 main = do
-  putStrLn "\ngimme PLA\n"
+  putStrLn "\ESC[2Jstarting fresh.... [\"bye\" to stop, \"reset\" to reset]\n"
+  helper [[]]
+
+brake :: String
+brake = "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
+
+helper incomingState = do
+  putStrLn $ "\n....gimme some PLA\n" ++ brake
   input <- getLine
-  putStrLn $ "\n**Parse**\n" ++ (showFormula $ gimme $ parse input)
-    ++ "\n\n"
-    ++ "**Meaning**\n{\n" ++ (showState . interpret) input ++ "\n}\n"
+  unless (input == "bye") $ do
+    if input == "reset"
+    then
+      main
+    else
+      do
+        putStrLn $ "\ESC[2J"
+          ++ "**Input**\n" ++ brake ++ "\n" ++ input
+          ++ "\n\n**Parse**\n" ++ brake ++ "\n"
+          ++ (showFormula $ gimme $ parse input)
+          ++ "\n\n"
+          ++ "**Meaning**\n" ++ brake ++ "\n{\n"
+          ++ showState (concat [interpret input s | s <- incomingState])
+          ++ "\n}\n\n"
+        helper (concat [interpret input s | s <- incomingState])
 
 showState :: [Stack] -> String
 showState [] = ""
-showState (x:[]) = show x
-showState (x:xs) = show x ++ "\n" ++ showState xs
+showState (x:[]) = " " ++ show x
+showState (x:xs) = " " ++ show x ++ "\n" ++ showState xs
 
 data Term = Con Char | Var Char | Pro String
 data Formula = Pred(Char, Term)
@@ -152,7 +172,7 @@ showFormula x = case x of
     "[.Exists " ++ showTerm var ++ " " ++ showFormula f ++ " ]"
   Conj(f1, f2) ->
     "[.Conj " ++ showFormula f1 ++ " " ++ showFormula f2 ++ " ]"
-  None -> "SORRY, couldn't parse that!! :("
+  None -> "SORRY, couldn't parse that!! (╯°□°）╯︵ ┻━┻"
 
 -- IO
 -- nice test case: (~  ((Ex (~e( x) )) & o ( p0  ) ))
@@ -218,5 +238,5 @@ andP l r s = concat [r s' | s' <- l s]
 exP :: (Int -> Prop) -> Prop
 exP p s = [s' ++ [x] | x <- domain, s' <- p x s]
 
-interpret :: String -> [Stack]
-interpret input = (eval $ gimme $ parse input) (\_ -> -666) []
+interpret :: String -> Stack -> [Stack]
+interpret input s = (eval $ gimme $ parse input) (\_ -> -666) s
