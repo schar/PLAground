@@ -1,14 +1,20 @@
-import Parser (or, (<$>), (*>), (<*), symbol, recursively, Parser, parse, end, and)
-import Array as Ar
-import Parser.Char (lower, parenthesized)
-import Parser.Number (digit)
-import Graphics.Input.Field as Field
-import Signal as Sig
-import Graphics.Element (..)
-import Text (plainText, asText)
+-- Basic Data
 import List
+import Array as Ar
 import String (fromChar, filter, toList, fromList, cons)
 import Result (..)
+
+-- Parser Library
+import Parser (or, (<$>), (*>), (<*), symbol, recursively, Parser, parse, end, and)
+import Parser.Char (lower, parenthesized)
+import Parser.Number (digit)
+
+-- Reactive Graphics
+import Signal as Sig
+import Graphics.Input.Field as Field
+import Graphics.Element (..)
+import Text (plainText, asText)
+import Window
 
 
 -- open a reactive channel to text contents
@@ -19,8 +25,8 @@ content =
   in Sig.channel startChan
 
 -- handler to process the reactive field contents at any given moment
-scene : Field.Content -> Element
-scene fieldContent =
+scene : Field.Content -> (Int,Int) -> Element
+scene fieldContent (w,h) =
   let clean = filter (\x -> x /= ' ')
       -- default text for the field when empty
       defText = "enter formula here"
@@ -29,15 +35,47 @@ scene fieldContent =
   -- stack two boxes on top of one another; the first a text input box hooked
   -- up to our reactive content channel, the second a box with the parse
   -- results
-  in flow down
-     [ Field.field Field.defaultStyle (Sig.send content) defText fieldContent
-     , asText (map (show showF) result)
-     , asText (map interpret result)
+  in -- position everything in the top middle of the window
+     container w h midTop <|
+     -- pad 50pts at the top
+     above (spacer 50 50) <|
+     -- flow the elements vertically
+     flow down <|
+     -- put 50pts of space between each element
+     List.intersperse (spacer 50 50)
+     -- here's the content
+     [ -- text input box
+       Field.field Field.defaultStyle (Sig.send content) defText fieldContent
+       -- display the LF of the formula, or an error message
+     , renderSyn result
+       -- display the meaning of the formula, or an error message
+     , renderSem (map interpret result)
      ]
+
+-- just showF plus some error handling
+renderSyn : Result String Formula -> Element
+renderSyn pars =
+  case pars of
+    Err msg -> plainText msg
+    Ok  lf   -> plainText <| show showF lf
+
+-- just interpret plus some error handling
+renderSem : Result String (List (Result String Stack)) -> Element
+renderSem meaning =
+  case meaning of
+    Err msg -> empty
+    Ok  xs  ->
+      let disp = \x -> case x of
+                         Err msg -> plainText ("[" ++ msg ++ "]")
+                         Ok s    -> asText (Ar.toList s)
+          outs = List.map disp xs
+      in if List.isEmpty outs
+            then plainText "Impossible!"
+            else flow right <| List.intersperse (spacer 10 10) outs
 
 -- process the channel reactively (send current text contents through handler)
 main : Signal Element
-main = Sig.map scene (Sig.subscribe content)
+main = Sig.map2 scene (Sig.subscribe content) (Window.dimensions)
 
 
 -- Object Language Types
@@ -104,7 +142,7 @@ parens = parenthesized
 form : Parser Formula
 form =
   let self  = recursively <| \() -> form -- Elm is not lazy :/
-      pred  = Pred <$> (symbol 'e' `or` symbol 'o') `and` parens term
+      pred  = Pred <$> lower `and` parens term
       neg   = parens <| symbol '~' *> (Neg <$> self)
       quant = parens <| Exists <$> (symbol 'E' *> var) `and` self
       conj  = parens <| Conj <$> self <* symbol '&' `and` self
@@ -121,7 +159,7 @@ switch e var x = \u -> if u == var then Ok x else e u
 
 -- run a formula at default context
 interpret : Formula -> List (Result String Stack)
-interpret input = eval input (\_ -> Ok -666) Ar.empty
+interpret input = eval input (always <| Err "-666") Ar.empty
 
 
 -- Meta Language Types
@@ -136,14 +174,19 @@ domain = [1..4]
 
 
 -- Essential helper funcs encoding semantics of subformulas
-predP : Char -> Int -> Prop
-predP predId x s =
-  let even = \x -> x % 2 == 0
-      odd  = \x -> not <| even x
-      f    = if predId == 'e' then even else odd
-  in if f x then [Ok s] else []
+predP : Char -> Result String Int -> Prop
+predP predId term s =
+  let lookup predId = case predId of
+                        'e' -> Ok <| \x -> x % 2 == 0
+                        'o' -> Ok <| \x -> x % 2 == 1
+                        _   -> Err <| "No predicate: " ++ fromChar predId
+  in case term of
+       Err msg -> [Err msg]
+       Ok  n   -> case lookup predId of
+                    Err msg -> [Err msg]
+                    Ok  f   -> if f n then [Ok s] else []
 
--- eqP :: Int -> Int -> Prop
+-- eqP :: Result Int -> Int -> Prop
 -- eqP x y s = if x == y then [s] else []
 
 negP : Prop -> Prop
@@ -172,10 +215,8 @@ evalTerm t e s = case t of
 eval : Formula -> Env -> Prop
 eval formula e s = case formula of
   Pred a b ->
-    case evalTerm b e s of
-      Err x -> [Err x]
-      Ok x  -> predP a x s
-  -- Rel(a, (b, c)) ->
+    predP a (evalTerm b e s) s
+  -- Rel a b c ->
   --   eqP (evalTerm b e s) (evalTerm c e s) s
   Neg f ->
     negP (eval f e) s
