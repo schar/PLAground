@@ -122,8 +122,6 @@ form =
             ret $ Exists(v, a))
 
 -- pretty printing
-data Node = Term | Formula
-
 showTerm :: Term -> String
 showTerm x = case x of
   Con n -> "[.Con " ++ [n] ++ " ]"
