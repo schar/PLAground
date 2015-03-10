@@ -121,18 +121,14 @@ form =
           lit ')' `bind` \_ ->
             ret $ Conj(a, b))
   `plus`
-  (lit '(' `bind` \_ ->
-    neg `bind` \_ ->
-      form `bind` \a ->
-        lit ')' `bind` \_ ->
-          ret $ Neg a)
+  (neg `bind` \_ ->
+    form `bind` \a ->
+        ret $ Neg a)
   `plus`
-  (lit '(' `bind` \_ ->
-    lit 'E' `bind` \_ ->
-      var `bind` \v ->
-        form `bind` \a ->
-          lit ')' `bind` \_ ->
-            ret $ Exists(v, a))
+  (lit 'E' `bind` \_ ->
+    var `bind` \v ->
+      form `bind` \a ->
+          ret $ Exists(v, a))
 
 -- fix: atm, any bad thing after a legit parse will just be ignored
 -- e.g. if you don't consume every string, you fail....
@@ -220,7 +216,7 @@ andP :: Prop -> Prop -> Prop
 andP l r s = concat [r s' | s' <- l s]
 
 exP :: (Int -> Prop) -> Prop
-exP p s = concat [p x (s ++ [x]) | x <- domain]
+exP p s = [s' ++ [x] | x <- domain, s' <- p x s]
 
 interpret :: String -> [Stack]
 interpret input = (eval $ gimme $ parse input) (\_ -> -666) []
