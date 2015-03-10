@@ -64,14 +64,19 @@ renderSem : Result String (List (Result String Stack)) -> Element
 renderSem meaning =
   case meaning of
     Err msg -> empty
-    Ok  xs  ->
-      let disp = \x -> case x of
-                         Err msg -> plainText ("[" ++ msg ++ "]")
-                         Ok s    -> asText (Ar.toList s)
-          outs = List.map disp xs
-      in if List.isEmpty outs
-            then plainText "Impossible!"
-            else flow right <| List.intersperse (spacer 10 10) outs
+    Ok (Err msg) -> plainText msg
+    Ok (Ok xs) ->
+      if List.isEmpty xs
+         then plainText "Impossible!"
+         else flow right <| List.intersperse (spacer 10 10)
+                         <| List.map (asText << Ar.toList) xs
+      -- let disp = \x -> case x of
+      --                    Err msg -> plainText ("[" ++ msg ++ "]")
+      --                    Ok s    -> asText (Ar.toList s)
+      --     outs = List.map disp xs
+      -- in if List.isEmpty outs
+      --       then plainText "Impossible!"
+      --       else flow right <| List.intersperse (spacer 10 10) outs
 
 -- process the channel reactively (send current text contents through handler)
 main : Signal Element
@@ -158,14 +163,14 @@ switch : Env -> Char -> Int -> Env
 switch e var x = \u -> if u == var then Ok x else e u
 
 -- run a formula at default context
-interpret : Formula -> List (Result String Stack)
+interpret : Formula -> Result String (List Stack)
 interpret input = eval input (always <| Err "-666") Ar.empty
 
 
 -- Meta Language Types
 type alias Env   = Char -> Result String Int
 type alias Stack = Ar.Array Int
-type alias Prop  = Stack -> List (Result String Stack)
+type alias Prop  = Stack -> Result String (List Stack)
 
 
 -- The Model
@@ -174,35 +179,24 @@ domain = [1..4]
 
 
 -- Essential helper funcs encoding semantics of subformulas
-predP : Char -> Result String Int -> Prop
-predP predId term s =
-  let lookup predId = case predId of
-                        'e' -> Ok <| \x -> x % 2 == 0
-                        'o' -> Ok <| \x -> x % 2 == 1
-                        _   -> Err <| "No predicate: " ++ fromChar predId
-  in case term of
-       Err msg -> [Err msg]
-       Ok  n   -> case lookup predId of
-                    Err msg -> [Err msg]
-                    Ok  f   -> if f n then [Ok s] else []
 
 -- eqP :: Result Int -> Int -> Prop
 -- eqP x y s = if x == y then [s] else []
 
-negP : Prop -> Prop
-negP p s = case p s of
-  [] -> [Ok s]
-  _  -> []
+-- negP : Prop -> Prop
+-- negP p s = case p s of
+--   [] -> [Ok s]
+--   _  -> []
 
-andP : Prop -> Prop -> Prop
-andP l r s =
-  let blah ms' = case map r ms' of
-    Err x -> [Err x]
-    Ok ss -> ss
-  in List.concatMap blah <| l s
+-- andP : Prop -> Prop -> Prop
+-- andP l r s =
+--   let blah ms' = case map r ms' of
+--     Err x -> [Err x]
+--     Ok ss -> ss
+--   in List.concatMap blah <| l s
 
-exP : (Int -> Prop) -> Prop
-exP p s = List.concatMap (\x -> p x (Ar.push x s)) domain
+-- exP : (Int -> Prop) -> Prop
+-- exP p s = List.concatMap (\x -> p x (Ar.push x s)) domain
 
 
 -- Main interpretation functions
@@ -212,15 +206,47 @@ evalTerm t e s = case t of
   Var v -> e v
   Pro n -> fromMaybe ("whoops: pro" ++ toString n) <| Ar.get n s
 
+-- predP : Char -> Result String Int -> Prop
+-- predP predId term s =
+--   let lookup predId = case predId of
+--                         'e' -> Ok <| \x -> x % 2 == 0
+--                         'o' -> Ok <| \x -> x % 2 == 1
+--                         _   -> Err <| "No predicate: " ++ fromChar predId
+--   in case term of
+--        Err msg -> [Err msg]
+--        Ok  n   -> case lookup predId of
+--                     Err msg -> [Err msg]
+--                     Ok  f   -> if f n then [Ok s] else []
+
+predPLA : (Int -> Bool) -> Int -> Stack -> List Stack
+predPLA f n s = if f n then [s] else []
+
+negPLA : (Stack -> List Stack) -> Stack -> List Stack
+negPLA p s = if List.isEmpty (p s) then [s] else []
+
+conjPLA : (Stack -> List Stack)-> (Stack -> List Stack) -> Stack -> List Stack
+conjPLA l r s = List.concatMap r (l s)
+
+exPLA : (Int -> Stack -> List Stack)
+exPLA g s = List.concatMap (\x -> g x (Ar.push x s)) domain
+
 eval : Formula -> Env -> Prop
 eval formula e s = case formula of
   Pred a b ->
-    predP a (evalTerm b e s) s
+    map3 predPLA (lookup predId) (evalTerm b e s) (Ok s)
+    -- predP a (evalTerm b e s) s
   -- Rel a b c ->
   --   eqP (evalTerm b e s) (evalTerm c e s) s
   Neg f ->
-    negP (eval f e) s
+    map negPLA (eval f e) (Ok s)
+    -- negP (eval f e) s
   Conj f1 f2 ->
-    andP (eval f1 e) (eval f2 e) s
+    map conjPLA (eval f1 e) (eval f2 e) (Ok s)
+    -- andP (eval f1 e) (eval f2 e) s
   Exists (Var v) f ->
-    exP (\x -> eval f (switch e v x)) s
+    let scope = \x s ->
+    -- failures just ignored in the scope of the quant, hmm
+                  case eval f (switch e v x) s of
+                    Err _ -> []
+                    Ok ss -> ss
+    in Ok <| exPLA scope s
