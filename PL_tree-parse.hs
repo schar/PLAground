@@ -2,6 +2,19 @@ module Main (main) where
 import           Data.Char
 import           Data.List
 
+main :: IO ()
+main = do
+  putStrLn "\ngimme PLA\n"
+  input <- getLine
+  putStrLn $ "\n**Parse**\n" ++ (showFormula $ gimme $ parse input)
+    ++ "\n\n"
+    ++ "**Meaning**\n{\n" ++ (showState . interpret) input ++ "\n}\n"
+
+showState :: [Stack] -> String
+showState [] = ""
+showState (x:[]) = show x
+showState (x:xs) = show x ++ "\n" ++ showState xs
+
 data Term = Con Char | Var Char | Pro String
 data Formula = Pred(Char, Term)
              | Rel(String, (Term, Term))
@@ -121,6 +134,9 @@ form =
           lit ')' `bind` \_ ->
             ret $ Exists(v, a))
 
+-- fix: atm, any bad thing after a legit parse will just be ignored
+-- e.g. if you don't consume every string, you fail....
+
 -- pretty printing
 showTerm :: Term -> String
 showTerm x = case x of
@@ -154,12 +170,6 @@ gimme :: [(Formula, String)] -> Formula
 gimme [] = None
 gimme ((x, y):xs) = x
 
-main :: IO ()
-main = do
-  putStrLn "gimme PLA"
-  input <- getLine
-  putStrLn $ showFormula $ gimme $ parse input
-
 -- interpreter
 type Env = Char -> Int
 type Stack = [Int]
@@ -172,7 +182,7 @@ evalTerm :: Term -> Env -> Stack -> Int
 evalTerm t e s = case t of
   Con a -> read [a]
   Var v -> e v
-  Pro (p:n) -> s !! read n
+  Pro (p:n) -> reverse s !! read n
 
 switch :: Env -> Int -> Char -> Char -> Int
 switch e x var u = if u == var then x else e u
