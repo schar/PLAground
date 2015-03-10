@@ -4,6 +4,7 @@ import           Data.List
 
 data Term = Con Char | Var Char | Pro String
 data Formula = Pred(Char, Term)
+             | Rel(String, (Term, Term))
              | Neg Formula
              | Exists(Term, Formula)
              | Conj(Formula, Formula)
@@ -54,6 +55,12 @@ conj = lit '&'
 neg :: M Char
 neg = lit '~'
 
+-- equality
+eq :: M String
+eq = lit 'e' `bind` \a ->
+      lit 'q' `bind` \b ->
+        ret $ "eq"
+
 -- constants (i.e. integers)
 con :: M Term
 con =
@@ -85,6 +92,14 @@ form =
       term `bind` \b ->
         lit ')' `bind` \_ ->
           ret $ Pred(a, b))
+  `plus`
+  (eq `bind` \a ->
+    lit '(' `bind` \_ ->
+      term `bind` \b ->
+        lit ',' `bind` \_ ->
+          term `bind` \c ->
+            lit ')' `bind` \_ ->
+              ret $ Rel(a, (b, c)))
   `plus`
   (lit '(' `bind` \_ ->
     form `bind` \a ->
@@ -118,6 +133,8 @@ showFormula :: Formula -> String
 showFormula x = case x of
   Pred(a, b) ->
     "[.Pred " ++ [a] ++ " " ++ showTerm b ++ " ]"
+  Rel(a, (b, c)) ->
+    "[.Rel " ++ a ++ " " ++ "{(" ++ showTerm b ++ ", " ++ showTerm c ++ ")} ]"
   Neg f ->
     "[.Neg " ++ showFormula f ++ " ]"
   Exists(var, f) ->
@@ -168,6 +185,8 @@ eval x e s = case x of
     then (liftP even) t s
     else (liftP odd) t s
       where t = evalTerm b e s
+  Rel(a, (b, c)) ->
+    eqP (evalTerm b e s) (evalTerm c e s) s
   Neg f ->
     (negP $ eval f e) s
   Conj(f1, f2) ->
@@ -179,6 +198,9 @@ eval x e s = case x of
 
 liftP :: (Int -> Bool) -> Int -> Prop
 liftP f x s = if f x then [s] else []
+
+eqP :: Int -> Int -> Prop
+eqP x y s = if x == y then [s] else []
 
 negP :: Prop -> Prop
 negP p s = case p s of
