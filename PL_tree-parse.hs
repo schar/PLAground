@@ -1,34 +1,36 @@
 module Main (main) where
-import           Control.Monad
-import           Data.Char
-import           Data.List
+
+import System.Console.Haskeline
+import Data.Char
 
 main :: IO ()
 main = do
   putStrLn "\ESC[2Jstarting fresh.... [\"bye\" to stop, \"reset\" to reset]\n"
-  helper [[]]
+  runInputT defaultSettings $ helper [[]]
 
 brake :: String
 brake = "\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"
 
+helper :: [Stack] -> InputT IO ()
 helper incomingState = do
-  putStrLn $ "\n....gimme some PLA\n" ++ brake
-  input <- getLine
-  unless (input == "bye") $ do
-    if input == "reset"
-    then
-      main
-    else
-      do
-        putStrLn $ "\ESC[2J"
-          ++ "**Input**\n" ++ brake ++ "\n" ++ input
-          ++ "\n\n**Parse**\n" ++ brake ++ "\n"
-          ++ (showFormula $ gimme $ parse input)
-          ++ "\n\n"
-          ++ "**Meaning**\n" ++ brake ++ "\n{\n"
-          ++ showState (concat [interpret input s | s <- incomingState])
-          ++ "\n}\n\n"
-        helper (concat [interpret input s | s <- incomingState])
+  outputStrLn $ "\n....gimme some PLA\n" ++ brake
+  minput <- getInputLine ""
+  case minput of
+    Nothing -> return ()
+    Just "bye" -> return ()
+    Just "reset" -> do
+      outputStrLn "\ESC[2Jstarting fresh.... [\"bye\" to stop, \"reset\" to reset]\n"
+      helper [[]]
+    Just input -> do
+      outputStrLn $ "\ESC[2J"
+        ++ "**Input**\n" ++ brake ++ "\n" ++ input
+        ++ "\n\n**Parse**\n" ++ brake ++ "\n"
+        ++ show (gimme $ parse input)
+        ++ "\n\n"
+        ++ "**Meaning**\n" ++ brake ++ "\n{\n"
+        ++ showState (concat [interpret input s | s <- incomingState])
+        ++ "\n}\n\n"
+      helper (concat [interpret input s | s <- incomingState])
 
 showState :: [Stack] -> String
 showState [] = ""
@@ -43,18 +45,40 @@ data Formula = Pred(Char, Term)
              | Conj(Formula, Formula)
              | None
 
+-- pretty printing
+instance Show Term where
+  show x = case x of
+    Con n -> "[.Con " ++ [n] ++ " ]"
+    Var v -> "[.Var " ++ [v] ++ " ]"
+    Pro p -> "[.Pro " ++ p ++ " ]"
+
+instance Show Formula where
+  show x = case x of
+    Pred(a, b) ->
+      "[.Pred " ++ [a] ++ " " ++ show b ++ " ]"
+    Rel(a, (b, c)) ->
+      "[.Rel " ++ a ++ " [.Pair " ++ show b ++ " " ++ show c ++ " ] ]"
+    Neg f ->
+      "[.Neg " ++ show f ++ " ]"
+    Exists(v, f) ->
+      "[.Exists " ++ show v ++ " " ++ show f ++ " ]"
+    Conj(f1, f2) ->
+      "[.Conj " ++ show f1 ++ " " ++ show f2 ++ " ]"
+    None -> "SORRY, couldn't parse that!! (╯°□°）╯︵ ┻━┻"
+
+
 -- monadic bits
 type M a = String -> [(a, String)]
 
 ret :: a -> M a
-ret a = \s -> [(a, s)]
+ret a s = [(a, s)]
 
 bind :: M a -> (a -> M b) -> M b
-m `bind` f = \s -> concatMap (\(a, s') -> f a s') $ m s
+m `bind` f = concatMap (uncurry f) . m
 
 -- zero and plus
 zero :: M a
-zero x = []
+zero _ = []
 
 plus :: M a -> M a -> M a
 m `plus` n = \s -> m s ++ n s
@@ -90,9 +114,9 @@ neg = lit '~'
 
 -- equality
 eq :: M String
-eq = lit 'e' `bind` \a ->
-      lit 'q' `bind` \b ->
-        ret $ "eq"
+eq = lit 'e' `bind` \_ ->
+      lit 'q' `bind` \_ ->
+        ret "eq"
 
 -- constants (i.e. integers)
 con :: M Term
@@ -110,8 +134,8 @@ var =
 pro :: M Term
 pro =
   lit 'p' `bind` \a ->
-    (item `filt` \a -> isDigit a) `bind` \b ->
-      ret $ Pro $ [a] ++ [b]
+    (item `filt` isDigit) `bind` \b ->
+      ret $ Pro $ a : [b]
 
 -- terms
 term :: M Term
@@ -153,26 +177,6 @@ form =
 -- fix: atm, any bad thing after a legit parse will just be ignored
 -- e.g. if you don't consume every string, you fail....
 
--- pretty printing
-showTerm :: Term -> String
-showTerm x = case x of
-  Con n -> "[.Con " ++ [n] ++ " ]"
-  Var v -> "[.Var " ++ [v] ++ " ]"
-  Pro p -> "[.Pro " ++ p ++ " ]"
-
-showFormula :: Formula -> String
-showFormula x = case x of
-  Pred(a, b) ->
-    "[.Pred " ++ [a] ++ " " ++ showTerm b ++ " ]"
-  Rel(a, (b, c)) ->
-    "[.Rel " ++ a ++ " [.Pair " ++ showTerm b ++ " " ++ showTerm c ++ " ] ]"
-  Neg f ->
-    "[.Neg " ++ showFormula f ++ " ]"
-  Exists(var, f) ->
-    "[.Exists " ++ showTerm var ++ " " ++ showFormula f ++ " ]"
-  Conj(f1, f2) ->
-    "[.Conj " ++ showFormula f1 ++ " " ++ showFormula f2 ++ " ]"
-  None -> "SORRY, couldn't parse that!! (╯°□°）╯︵ ┻━┻"
 
 -- IO
 -- nice test case: (~  ((Ex (~e( x) )) & o ( p0  ) ))
@@ -184,7 +188,7 @@ parse = form . clean
 
 gimme :: [(Formula, String)] -> Formula
 gimme [] = None
-gimme ((x, y):xs) = x
+gimme ((x,_):_) = x
 
 -- interpreter
 type Env = Char -> Int
@@ -198,34 +202,37 @@ evalTerm :: Term -> Env -> Stack -> Int
 evalTerm t e s = case t of
   Con a -> read [a]
   Var v -> e v
-  Pro (p:n) -> reverse s !! read n
+  Pro (_:n) -> reverse s !! read n
+  Pro [] -> 666
 
 switch :: Env -> Int -> Char -> Char -> Int
-switch e x var u = if u == var then x else e u
+switch e x v u = if u == v then x else e u
 
 eval :: Formula -> Env -> Prop
 eval x e s = case x of
   Pred(a, b) ->
     if a == 'e'
-    then (liftP even) t s
-    else (liftP odd) t s
+    then liftP even t s
+    else liftP odd t s
       where t = evalTerm b e s
-  Rel(a, (b, c)) ->
+  Rel(_, (b, c)) ->
     eqP (evalTerm b e s) (evalTerm c e s) s
   Neg f ->
     (negP $ eval f e) s
   Conj(f1, f2) ->
     andP (eval f1 e) (eval f2 e) s
   Exists(Var v, f) ->
-    exP (\x -> eval f (switch e x v)) s
+    exP (\n -> eval f (switch e n v)) s
+  Exists(_,_) ->
+    [[666]]
   None ->
     [[666]]
 
 liftP :: (Int -> Bool) -> Int -> Prop
-liftP f x s = if f x then [s] else []
+liftP f x s = [s | f x]
 
 eqP :: Int -> Int -> Prop
-eqP x y s = if x == y then [s] else []
+eqP x y s = [s | x == y]
 
 negP :: Prop -> Prop
 negP p s = case p s of
@@ -239,4 +246,4 @@ exP :: (Int -> Prop) -> Prop
 exP p s = [s' ++ [x] | x <- domain, s' <- p x s]
 
 interpret :: String -> Stack -> [Stack]
-interpret input s = (eval $ gimme $ parse input) (\_ -> -666) s
+interpret input = (eval $ gimme $ parse input) (\_ -> -666)
