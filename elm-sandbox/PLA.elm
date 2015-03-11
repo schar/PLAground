@@ -5,7 +5,8 @@ import String (fromChar, filter, toList, fromList, cons)
 import Result (..)
 
 -- Parser Library
-import Parser (or, (<$>), (*>), (<*), symbol, recursively, Parser, parse, end, and)
+import Parser (or, (<$>), (*>), (<*), symbol, recursively,
+               Parser, parse, end, and, some)
 import Parser.Char (lower, parenthesized)
 import Parser.Number (digit)
 
@@ -49,7 +50,7 @@ scene fieldContent (w,h) =
        -- display the LF of the formula, or an error message
      , renderSyn result
        -- display the meaning of the formula, or an error message
-     , renderSem (map interpret result)
+     , renderSem result
      ]
 
 -- just showF plus some error handling
@@ -60,23 +61,16 @@ renderSyn pars =
     Ok  lf   -> plainText <| show showF lf
 
 -- just interpret plus some error handling
-renderSem : Result String (List (Result String Stack)) -> Element
-renderSem meaning =
-  case meaning of
+renderSem : Result String Formula -> Element
+renderSem pars =
+  case pars of
     Err msg -> empty
-    Ok (Err msg) -> plainText msg
-    Ok (Ok xs) ->
-      if List.isEmpty xs
-         then plainText "Impossible!"
-         else flow right <| List.intersperse (spacer 10 10)
-                         <| List.map (asText << Ar.toList) xs
-      -- let disp = \x -> case x of
-      --                    Err msg -> plainText ("[" ++ msg ++ "]")
-      --                    Ok s    -> asText (Ar.toList s)
-      --     outs = List.map disp xs
-      -- in if List.isEmpty outs
-      --       then plainText "Impossible!"
-      --       else flow right <| List.intersperse (spacer 10 10) outs
+    Ok lf   -> case eval lf (always <| Err "-666") Ar.empty of
+      Err msg -> plainText msg
+      Ok xs -> beside (plainText "Output:  ")
+                 <| flow right
+                 <| List.intersperse (spacer 10 10)
+                 <| List.map (asText << Ar.toList) xs
 
 -- process the channel reactively (send current text contents through handler)
 main : Signal Element
@@ -88,7 +82,7 @@ main = Sig.map2 scene (Sig.subscribe content) (Window.dimensions)
 
 type Term = Con Int | Var Char | Pro Int
 type Formula = Pred Char Term
-             -- | Rel String Term Term
+             | Rel String Term Term
              | Neg Formula
              | Exists Term Formula
              | Conj Formula Formula
@@ -107,8 +101,8 @@ showF = {
   show x = case x of
     Pred a b ->
       "[.Pred " ++ fromChar a ++ " " ++ show showT b ++ " ]"
-    -- Rel a b c ->
-    --   "[.Rel " ++ a ++ " " ++ "{(" ++ show showT b ++ ", " ++ show showT c ++ ")} ]"
+    Rel a b c ->
+      "[.Rel " ++ a ++ " " ++ "{(" ++ show showT b ++ ", " ++ show showT c ++ ")} ]"
     Neg f ->
       "[.Neg " ++ show showF f ++ " ]"
     Exists v f ->
@@ -148,105 +142,71 @@ form : Parser Formula
 form =
   let self  = recursively <| \() -> form -- Elm is not lazy :/
       pred  = Pred <$> lower `and` parens term
+      rel   = (uncurry << Rel) <$> (fromList <$> some lower) `and`
+                parens ((,) <$> term <* symbol ',' `and` term)
       neg   = parens <| symbol '~' *> (Neg <$> self)
       quant = parens <| Exists <$> (symbol 'E' *> var) `and` self
       conj  = parens <| Conj <$> self <* symbol '&' `and` self
-  in pred `or` neg `or` quant `or` conj
+  in pred `or` rel `or` neg `or` quant `or` conj
 
 
 -- Semantics
 ------------------------------------------------------------------------------
-
--- Auxiliary Funcs
--- update assignment function
-switch : Env -> Char -> Int -> Env
-switch e var x = \u -> if u == var then Ok x else e u
-
--- run a formula at default context
-interpret : Formula -> Result String (List Stack)
-interpret input = eval input (always <| Err "-666") Ar.empty
-
 
 -- Meta Language Types
 type alias Env   = Char -> Result String Int
 type alias Stack = Ar.Array Int
 type alias Prop  = Stack -> Result String (List Stack)
 
+-- update assignment function
+switch : Env -> Char -> Int -> Env
+switch e var x = \u -> if u == var then Ok x else e u
 
 -- The Model
 domain : List Int
 domain = [1..4]
 
 
--- Essential helper funcs encoding semantics of subformulas
+-- One-Place Lexicon
+predDict : Char -> Result String (Int -> Bool)
+predDict predId =
+  case predId of
+    'e' -> Ok <| \x -> x % 2 == 0
+    'o' -> Ok <| \x -> x % 2 == 1
+    _   -> Err <| "No predicate: " ++ fromChar predId
 
--- eqP :: Result Int -> Int -> Prop
--- eqP x y s = if x == y then [s] else []
+-- Two-Place Lexicon
+relDict : String -> Result String (Int -> Int -> Bool)
+relDict relId =
+  case relId of
+    "eq" -> Ok <| \x y -> x == y
+    _    -> Err <| "No relation: " ++ relId
 
--- negP : Prop -> Prop
--- negP p s = case p s of
---   [] -> [Ok s]
---   _  -> []
-
--- andP : Prop -> Prop -> Prop
--- andP l r s =
---   let blah ms' = case map r ms' of
---     Err x -> [Err x]
---     Ok ss -> ss
---   in List.concatMap blah <| l s
-
--- exP : (Int -> Prop) -> Prop
--- exP p s = List.concatMap (\x -> p x (Ar.push x s)) domain
-
-
--- Main interpretation functions
+-- Resolve variables, constants, and pronouns
 evalTerm : Term -> Env -> Stack -> Result String Int
 evalTerm t e s = case t of
   Con a -> Ok a
   Var v -> e v
   Pro n -> fromMaybe ("whoops: pro" ++ toString n) <| Ar.get n s
 
--- predP : Char -> Result String Int -> Prop
--- predP predId term s =
---   let lookup predId = case predId of
---                         'e' -> Ok <| \x -> x % 2 == 0
---                         'o' -> Ok <| \x -> x % 2 == 1
---                         _   -> Err <| "No predicate: " ++ fromChar predId
---   in case term of
---        Err msg -> [Err msg]
---        Ok  n   -> case lookup predId of
---                     Err msg -> [Err msg]
---                     Ok  f   -> if f n then [Ok s] else []
-
-predPLA : (Int -> Bool) -> Int -> Stack -> List Stack
-predPLA f n s = if f n then [s] else []
-
-negPLA : (Stack -> List Stack) -> Stack -> List Stack
-negPLA p s = if List.isEmpty (p s) then [s] else []
-
-conjPLA : (Stack -> List Stack)-> (Stack -> List Stack) -> Stack -> List Stack
-conjPLA l r s = List.concatMap r (l s)
-
-exPLA : (Int -> Stack -> List Stack)
-exPLA g s = List.concatMap (\x -> g x (Ar.push x s)) domain
-
+-- Interpretation function
 eval : Formula -> Env -> Prop
 eval formula e s = case formula of
   Pred a b ->
-    map3 predPLA (lookup predId) (evalTerm b e s) (Ok s)
-    -- predP a (evalTerm b e s) s
-  -- Rel a b c ->
-  --   eqP (evalTerm b e s) (evalTerm c e s) s
+    let predPLA f n s = if f n then [s] else []
+    in map3 predPLA (predDict a) (evalTerm b e s) (Ok s)
+  Rel a b c ->
+    let relPLA f n m s = if f n m then [s] else []
+    in map4 relPLA (relDict a) (evalTerm b e s) (evalTerm c e s) (Ok s)
   Neg f ->
-    map negPLA (eval f e) (Ok s)
-    -- negP (eval f e) s
+    let negPLA ss s = if List.isEmpty ss then [s] else []
+    in map2 negPLA (eval f e s) (Ok s)
   Conj f1 f2 ->
-    map conjPLA (eval f1 e) (eval f2 e) (Ok s)
-    -- andP (eval f1 e) (eval f2 e) s
+    let mplus m m' = m `andThen` \xs -> m' `andThen` \ys -> Ok (xs ++ ys)
+    in case eval f1 e s of
+         Err msg -> Err msg
+         Ok  ls  -> List.foldr mplus (Ok []) <| List.map (eval f2 e) ls
   Exists (Var v) f ->
-    let scope = \x s ->
-    -- failures just ignored in the scope of the quant, hmm
-                  case eval f (switch e v x) s of
-                    Err _ -> []
-                    Ok ss -> ss
-    in Ok <| exPLA scope s
+    let scope = \x s -> eval f (switch e v x) s
+        mplus m m' = m `andThen` \xs -> m' `andThen` \ys -> Ok (xs ++ ys)
+    in List.foldr mplus (Ok []) <| List.map (\x -> scope x (Ar.push x s)) domain
