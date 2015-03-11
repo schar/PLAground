@@ -21,7 +21,7 @@ import Window
 -- open a reactive channel to text contents
 content : Sig.Channel Field.Content
 content =
-  let startText = "(Ex (e(x) & o(x)))"
+  let startText = "Ex e(x)"
       startChan = Field.Content startText (Field.Selection 0 0 Field.Forward)
   in Sig.channel startChan
 
@@ -134,19 +134,19 @@ term : Parser Term
 term = pro `or` var `or` con
 
 -- given a parser for "blah", this parses "(blah)"
-parens : Parser a -> Parser a
-parens = parenthesized
+-- parens : Parser a -> Parser a
+-- parens = parenthesized
 
 -- formulae
 form : Parser Formula
 form =
   let self  = recursively <| \() -> form -- Elm is not lazy :/
-      pred  = Pred <$> lower `and` parens term
+      pred  = Pred <$> lower `and` parenthesized term
       rel   = (uncurry << Rel) <$> (fromList <$> some lower) `and`
-                parens ((,) <$> term <* symbol ',' `and` term)
-      neg   = parens <| symbol '~' *> (Neg <$> self)
-      quant = parens <| Exists <$> (symbol 'E' *> var) `and` self
-      conj  = parens <| Conj <$> self <* symbol '&' `and` self
+                parenthesized ((,) <$> term <* symbol ',' `and` term)
+      neg   = symbol '~' *> (Neg <$> self)
+      quant = Exists <$> (symbol 'E' *> var) `and` self
+      conj  = parenthesized <| Conj <$> self <* symbol '&' `and` self
   in pred `or` rel `or` neg `or` quant `or` conj
 
 
@@ -207,6 +207,8 @@ eval formula e s = case formula of
          Err msg -> Err msg
          Ok  ls  -> List.foldr mplus (Ok []) <| List.map (eval f2 e) ls
   Exists (Var v) f ->
-    let scope = \x s -> eval f (switch e v x) s
-        mplus m m' = m `andThen` \xs -> m' `andThen` \ys -> Ok (xs ++ ys)
-    in List.foldr mplus (Ok []) <| List.map (\x -> scope x (Ar.push x s)) domain
+    let scope = \x -> eval f (switch e v x)
+        mplus (m,x) m' =
+          m `andThen` \xs -> m' `andThen` \ys ->
+            Ok (List.map (Ar.push x) xs ++ ys)
+    in List.foldr mplus (Ok []) <| List.map (\x -> (scope x s, x)) domain
