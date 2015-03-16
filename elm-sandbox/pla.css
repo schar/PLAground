@@ -1,0 +1,235 @@
+/*
+===============================================================================
+   Normalization / Reset
+-------------------------------------------------------------------------------
+*/
+
+*, *::before, *::after {
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+pre,
+code {
+  display: block;
+  margin: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  margin: 0;
+  color: inherit;
+  border: 0;
+  outline: none;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
+button::-moz-focus-inner,
+input::-moz-focus-inner,
+textarea::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+
+/*
+===============================================================================
+   Typography
+-------------------------------------------------------------------------------
+*/
+
+@font-face {
+  font-family: 'Klinic Slab';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/assets/klinicslabmedium.woff') format('woff');
+}
+
+body {
+  font-family: 'museo-sans', sans-serif;
+  font-size: 100%;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #657b83;
+  -webkit-font-kerning: normal;
+     -moz-font-feature-settings: 'frac', 'liga';
+          font-feature-settings: 'frac', 'liga';
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Klinic Slab';
+  font-weight: 100;
+}
+
+code {
+  font-family: 'Menlo', 'Monaco', monospace;
+  font-size: 16px;
+  text-align: left;
+}
+
+pre > code::before, .sh > code::before {
+  content: '> ';
+}
+
+.sh {
+  border-radius: 2px;
+}
+
+.parse-msg {
+  font-size: 1000%;
+}
+
+
+/*
+===============================================================================
+    Color
+-------------------------------------------------------------------------------
+*/
+
+a {
+  color: #93a1a1;
+}
+
+/* .base-bg { */
+/*   background-color: #fdf6e3; */
+/* } */
+
+.base-copy {
+  color: #657b83;
+}
+
+.darker {
+  color: #586e75;
+}
+
+.lighter {
+  color: #93a1a1;
+}
+
+.ale {
+  color: #b58900;
+}
+
+/* .highlight-bg { */
+/*   background-color: #eee8d5; */
+/* } */
+
+.cyan {
+  color: #2aa198;
+}
+
+code {
+  color: #839496;
+}
+
+.parse-msg {
+  color: red;
+}
+
+/* .sh { */
+/*   background-color: #073642; */
+/* } */
+
+input.highlight-bg,
+textarea.highlight-bg {
+  background-color: rgba(238, 232, 213, 0.3);
+}
+
+input::-webkit-input-placeholder,
+input::-moz-placeholder,
+textarea::-webkit-textarea-placeholder,
+textarea::-moz-placeholder {
+  color: #93a1a1;
+}
+
+input[type="text"]:disabled::-webkit-input-placeholder,
+textarea[type="text"]:disabled::-webkit-textarea-placeholder {
+  color: #e6e2d0;
+}
+
+input[type="text"]:disabled::-moz-placeholder,
+textarea[type="text"]:disabled::-moz-placeholder {
+  color: #e6e2d0;
+}
+
+
+/*
+===============================================================================
+    Layout
+-------------------------------------------------------------------------------
+*/
+
+.spacing {
+  margin-top: 1.5rem;
+}
+
+body > .spacing:first-child {
+  margin-top: 0.75rem;
+}
+
+body > .spacing:last-child {
+  margin-top: 3rem;
+}
+
+.column-main {
+  max-width: 36rem;
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.parse-msg, .lfs {
+  min-height: 250px;
+}
+
+.lfs {
+  text-align: left;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.column-secondary {
+  max-width: 40rem;
+}
+
+pre {
+  text-align: center;
+}
+
+.sh {
+  width: 48%;
+  margin-top: 0.8rem;
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+}
+
+.page-wrap {
+  position: relative;
+}
+
+.stack-list {
+  display: inline-block;
+}
