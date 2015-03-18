@@ -33,6 +33,9 @@ showTerm x =
     Con n -> "[.Con " ++ toString n ++ " ]"
     Var v -> "[.Var " ++ fromChar v ++ " ]"
     Pro p -> "[.Pro p" ++ toString p ++ " ]"
+    -- Con n -> toString n
+    -- Var v -> fromChar v
+    -- Pro p -> toString p
 
 showFormula : Formula -> String
 showFormula x =
@@ -47,6 +50,11 @@ showFormula x =
       "[.Exists " ++ showTerm v ++ " " ++ showFormula f ++ " ]"
     Conj f1 f2 ->
       "[.Conj " ++ showFormula f1 ++ " " ++ showFormula f2 ++ " ]"
+    -- Pred a b -> fromChar a ++ "(" ++ showTerm b ++ ")"
+    -- Rel a bs -> a ++ "(" ++ join "," (List.map showTerm bs) ++ ")"
+    -- Neg f -> "~" ++ showFormula f
+    -- Exists v f -> "E" ++ showTerm v ++ " " ++ showFormula f
+    -- Conj f1 f2 -> "(" ++ showFormula f1 ++ " & " ++ showFormula f2 ++ ")"
 
 
 -- Grammar

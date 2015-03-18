@@ -39,7 +39,13 @@ parseEnv : String -> Result String Env
 parseEnv s = Result.map (List.head << List.reverse) <| parseAll envP s
 
 inpP : Parser Stack
-inpP = Ar.fromList <$> (bracketed <| separatedBy digit (token ", "))
+inpP = Ar.fromList <$> (separatedBy digit (token ","))
 
 parseInp : String -> Result String Stack
 parseInp = parse inpP
+
+chunks : Int -> List a -> List (List a)
+chunks n xs =
+  case xs of
+    [] -> []
+    _  -> List.take n xs :: chunks n (List.drop n xs)

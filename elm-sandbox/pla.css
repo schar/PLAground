@@ -72,7 +72,6 @@ body {
   font-size: 100%;
   font-weight: 500;
   line-height: 1.5;
-  color: #657b83;
   -webkit-font-kerning: normal;
      -moz-font-feature-settings: 'frac', 'liga';
           font-feature-settings: 'frac', 'liga';
@@ -109,70 +108,24 @@ pre > code::before, .sh > code::before {
 -------------------------------------------------------------------------------
 */
 
+body {
+  color: black;
+}
+
 a {
   color: #93a1a1;
 }
 
-/* .base-bg { */
-/*   background-color: #fdf6e3; */
-/* } */
-
-.base-copy {
-  color: #657b83;
-}
-
-.darker {
-  color: #586e75;
-}
-
-.lighter {
-  color: #93a1a1;
-}
-
-.ale {
-  color: #b58900;
-}
-
-/* .highlight-bg { */
-/*   background-color: #eee8d5; */
-/* } */
-
-.cyan {
-  color: #2aa198;
-}
-
 code {
-  color: #839496;
+  color: black;
 }
 
 .parse-msg {
   color: red;
 }
 
-/* .sh { */
-/*   background-color: #073642; */
-/* } */
-
-input.highlight-bg,
-textarea.highlight-bg {
-  background-color: rgba(238, 232, 213, 0.3);
-}
-
-input::-webkit-input-placeholder,
-input::-moz-placeholder,
-textarea::-webkit-textarea-placeholder,
-textarea::-moz-placeholder {
-  color: #93a1a1;
-}
-
-input[type="text"]:disabled::-webkit-input-placeholder,
-textarea[type="text"]:disabled::-webkit-textarea-placeholder {
-  color: #e6e2d0;
-}
-
-input[type="text"]:disabled::-moz-placeholder,
-textarea[type="text"]:disabled::-moz-placeholder {
-  color: #e6e2d0;
+.lf {
+  color: black;
 }
 
 
@@ -181,18 +134,6 @@ textarea[type="text"]:disabled::-moz-placeholder {
     Layout
 -------------------------------------------------------------------------------
 */
-
-.spacing {
-  margin-top: 1.5rem;
-}
-
-body > .spacing:first-child {
-  margin-top: 0.75rem;
-}
-
-body > .spacing:last-child {
-  margin-top: 3rem;
-}
 
 .column-main {
   max-width: 36rem;
@@ -207,16 +148,10 @@ body > .spacing:last-child {
 
 .lfs {
   text-align: left;
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column-reverse;
   flex-direction: column-reverse;
-}
-
-.column-secondary {
-  max-width: 40rem;
-}
-
-pre {
-  text-align: center;
 }
 
 .sh {
@@ -230,6 +165,51 @@ pre {
   position: relative;
 }
 
-.stack-list {
+#stack-hist {
+  max-height: 250px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space:nowrap;
+}
+
+.outputs {
+  margin: 0 10px;
   display: inline-block;
+  vertical-align: middle;
+}
+
+ul.stack-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.stack {
+  margin-right: 5px;
+}
+
+.stack::before {
+  content: '['
+}
+.stack::after {
+  content: ']'
+}
+
+#inp {
+  width: 20px;
+  text-align: center;
+}
+.inp {
+  width: 20px;
+  display: inline-block;
+  margin: 10px;
+}
+.inp::before {
+  content: '['
+}
+.inp::after {
+  content: ']'
 }
