@@ -4440,9 +4440,9 @@ Elm.Main.make = function (_elm) {
                                                                       ,action._1]],
                                              lf) : lf]))
                                              ,_1: _v28._1 + 1} : {ctor: "_Tuple2"
-                                                                 ,_0: A2($List._op["::"],
-                                                                 lf,
-                                                                 _v28._0)
+                                                                 ,_0: A2($Basics._op["++"],
+                                                                 _v28._0,
+                                                                 _L.fromArray([lf]))
                                                                  ,_1: _v28._1};}
                        _U.badCase($moduleName,
                        "between lines 102 and 107");

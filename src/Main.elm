@@ -104,7 +104,7 @@ update action model =
                     [if n == ind then {lf | highlight <- isInFocus} else lf]
                   , n + 1
                   )
-             else ( lf :: lfs, n )
+             else ( lfs ++ [lf], n )
       in  {model | lfHist <- newlfs}
 
     ToggleFormula ind ->
