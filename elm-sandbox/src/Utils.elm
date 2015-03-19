@@ -39,7 +39,7 @@ parseEnv : String -> Result String Env
 parseEnv s = Result.map (List.head << List.reverse) <| parseAll envP s
 
 inpP : Parser Stack
-inpP = Ar.fromList <$> (separatedBy digit (token ","))
+inpP = Ar.fromList <$> some digit
 
 parseInp : String -> Result String Stack
 parseInp = parse inpP
@@ -49,3 +49,13 @@ chunks n xs =
   case xs of
     [] -> []
     _  -> List.take n xs :: chunks n (List.drop n xs)
+
+evals : List Formula -> Env -> Stack -> Result String (List (List Stack))
+evals lfs env s =
+  let cs = List.scanl1 (flip Conj) lfs
+      xxs = List.map (\lf -> eval lf env s) cs
+      seq m m' = m `Result.andThen`
+                 \xs -> m' `Result.andThen`
+                 \yys -> Ok (xs :: yys)
+  in  List.foldr seq (Ok []) xxs
+

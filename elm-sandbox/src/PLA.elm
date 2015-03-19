@@ -132,7 +132,8 @@ evalTerm : Term -> Env -> Stack -> Result String Int
 evalTerm t e s = case t of
   Con a -> Ok a
   Var v -> e v
-  Pro n -> fromMaybe ("whoops: pro" ++ toString n) <| Ar.get n s
+  Pro n ->
+    fromMaybe ("pro" ++ toString n ++ "?") <| Ar.get (Ar.length s - n - 1) s
 
 -- Interpretation function
 eval : Formula -> Env -> Prop

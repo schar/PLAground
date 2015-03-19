@@ -60,15 +60,9 @@ textarea::-moz-focus-inner {
 -------------------------------------------------------------------------------
 */
 
-@font-face {
-  font-family: 'Klinic Slab';
-  font-weight: 500;
-  font-style: normal;
-  src: url('/assets/klinicslabmedium.woff') format('woff');
-}
-
 body {
-  font-family: 'museo-sans', sans-serif;
+  /* font-family: 'museo-sans', sans-serif; */
+  font-family: 'Ubuntu Mono', monospace;
   font-size: 100%;
   font-weight: 500;
   line-height: 1.5;
@@ -78,23 +72,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Klinic Slab';
-  font-weight: 100;
-}
-
 code {
-  font-family: 'Menlo', 'Monaco', monospace;
+  font-family: 'Monaco', 'Courier', monospace;
   font-size: 16px;
   text-align: left;
 }
 
-pre > code::before, .sh > code::before {
+pre > code::before {
   content: '> ';
-}
-
-.sh {
-  border-radius: 2px;
 }
 
 .parse-msg {
@@ -155,10 +140,8 @@ code {
 }
 
 .sh {
-  width: 48%;
-  margin-top: 0.8rem;
-  margin-bottom: 0.2rem;
-  padding: 1rem;
+  margin-top: 1em;
+  padding: 1em 0;
 }
 
 .page-wrap {
@@ -199,11 +182,11 @@ ul.stack-list {
 }
 
 #inp {
-  width: 20px;
+  width: 24px;
   text-align: center;
 }
 .inp {
-  width: 20px;
+  width: 45px;
   display: inline-block;
   margin: 10px;
 }
