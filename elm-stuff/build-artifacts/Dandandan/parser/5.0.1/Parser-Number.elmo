@@ -1,0 +1,75 @@
+Elm.Parser = Elm.Parser || {};
+Elm.Parser.Number = Elm.Parser.Number || {};
+Elm.Parser.Number.make = function (_elm) {
+   "use strict";
+   _elm.Parser = _elm.Parser || {};
+   _elm.Parser.Number = _elm.Parser.Number || {};
+   if (_elm.Parser.Number.values)
+   return _elm.Parser.Number.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Parser.Number",
+   $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Parser = Elm.Parser.make(_elm);
+   var sign = function () {
+      var min = A2($Parser.map,
+      $Basics.always(1),
+      $Parser.symbol(_U.chr("+")));
+      var plus = A2($Parser.map,
+      $Basics.always(-1),
+      $Parser.symbol(_U.chr("-")));
+      return A2($Parser.optional,
+      A2($Parser.or,plus,min),
+      1);
+   }();
+   var digit = $Parser.map(function (x) {
+      return $Char.toCode(x) - 48;
+   })($Parser.satisfy($Char.isDigit));
+   var natural = $Parser.map(A2($List.foldl,
+   F2(function (b,a) {
+      return a * 10 + b;
+   }),
+   0))($Parser.some(digit));
+   var integer = A2($Parser.and,
+   A2($Parser.map,
+   F2(function (sig,nat) {
+      return sig * nat;
+   }),
+   sign),
+   natural);
+   var $float = function () {
+      var convertToFloat = F3(function (sig,
+      $int,
+      dig) {
+         return $Basics.toFloat(sig) * ($Basics.toFloat($int) + 0.1 * A3($List.foldr,
+         F2(function (b,a) {
+            return a / 10 + b;
+         }),
+         0,
+         A2($List.map,
+         $Basics.toFloat,
+         dig)));
+      });
+      return A2($Parser.and,
+      A2($Parser.and,
+      A2($Parser.map,
+      convertToFloat,
+      sign),
+      integer),
+      A2($Parser._op["*>"],
+      $Parser.symbol(_U.chr(".")),
+      $Parser.some(digit)));
+   }();
+   _elm.Parser.Number.values = {_op: _op
+                               ,digit: digit
+                               ,natural: natural
+                               ,integer: integer
+                               ,$float: $float
+                               ,sign: sign};
+   return _elm.Parser.Number.values;
+};

@@ -1,0 +1,289 @@
+Elm.Parser = Elm.Parser || {};
+Elm.Parser.make = function (_elm) {
+   "use strict";
+   _elm.Parser = _elm.Parser || {};
+   if (_elm.Parser.values)
+   return _elm.Parser.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Parser",
+   $Basics = Elm.Basics.make(_elm),
+   $Lazy = Elm.Lazy.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $String = Elm.String.make(_elm);
+   var funP = function (p) {
+      return function () {
+         switch (p.ctor)
+         {case "Delayed":
+            return $Lazy.force(p._0);
+            case "Direct": return p._0;}
+         _U.badCase($moduleName,
+         "between lines 37 and 51");
+      }();
+   };
+   var parse = F2(function (p,xs) {
+      return function () {
+         var _v3 = A2(funP,p,xs);
+         switch (_v3.ctor)
+         {case "::":
+            return $Result.Ok($Basics.fst(_v3._0));
+            case "[]":
+            return $Result.Err("parse error");}
+         _U.badCase($moduleName,
+         "between lines 58 and 62");
+      }();
+   });
+   var parseAll = F2(function (p,
+   xs) {
+      return function () {
+         var _v6 = A2(funP,p,xs);
+         switch (_v6.ctor)
+         {case "[]":
+            return $Result.Err("parse error");}
+         return $Result.Ok(A2($List.map,
+         $Basics.fst,
+         _v6));
+      }();
+   });
+   var Delayed = function (a) {
+      return {ctor: "Delayed"
+             ,_0: a};
+   };
+   var recursively = function (t) {
+      return Delayed($Lazy.lazy(function (_v7) {
+         return function () {
+            switch (_v7.ctor)
+            {case "_Tuple0":
+               return funP(t({ctor: "_Tuple0"}));}
+            _U.badCase($moduleName,
+            "on line 53, column 43 to 52");
+         }();
+      }));
+   };
+   var Direct = function (a) {
+      return {ctor: "Direct"
+             ,_0: a};
+   };
+   var succeed = function (b) {
+      return Direct(function (xs) {
+         return _L.fromArray([{ctor: "_Tuple2"
+                              ,_0: b
+                              ,_1: xs}]);
+      });
+   };
+   var satisfy = function (p) {
+      return Direct(function (xs) {
+         return function () {
+            var _v9 = $String.uncons(xs);
+            switch (_v9.ctor)
+            {case "Just":
+               switch (_v9._0.ctor)
+                 {case "_Tuple2":
+                    return p(_v9._0._0) ? _L.fromArray([{ctor: "_Tuple2"
+                                                        ,_0: _v9._0._0
+                                                        ,_1: _v9._0._1}]) : _L.fromArray([]);}
+                 break;
+               case "Nothing":
+               return _L.fromArray([]);}
+            _U.badCase($moduleName,
+            "between lines 77 and 81");
+         }();
+      });
+   };
+   var symbol = function (x) {
+      return satisfy(function (s) {
+         return _U.eq(s,x);
+      });
+   };
+   var empty = Direct($Basics.always(_L.fromArray([])));
+   var map = F2(function (f,p) {
+      return Direct(function (xs) {
+         return $List.map(function (_v13) {
+            return function () {
+               switch (_v13.ctor)
+               {case "_Tuple2":
+                  return {ctor: "_Tuple2"
+                         ,_0: f(_v13._0)
+                         ,_1: _v13._1};}
+               _U.badCase($moduleName,
+               "on line 128, column 44 to 51");
+            }();
+         })(A2(funP,p,xs));
+      });
+   });
+   _op["<$>"] = map;
+   _op["<$"] = F2(function (f,p) {
+      return A2(map,
+      $Basics.always(f),
+      p);
+   });
+   var or = F2(function (p,q) {
+      return Direct(function (xs) {
+         return A2($Basics._op["++"],
+         A2(funP,p,xs),
+         A2(funP,q,xs));
+      });
+   });
+   var choice = A2($List.foldr,
+   or,
+   empty);
+   var optional = F2(function (p,
+   x) {
+      return A2(or,p,succeed(x));
+   });
+   _op["<|>"] = or;
+   var and = F2(function (p,q) {
+      return Direct(function (xs) {
+         return $List.concat($List.map(function (_v17) {
+            return function () {
+               switch (_v17.ctor)
+               {case "_Tuple2":
+                  return $List.map(function (_v21) {
+                       return function () {
+                          switch (_v21.ctor)
+                          {case "_Tuple2":
+                             return {ctor: "_Tuple2"
+                                    ,_0: _v17._0(_v21._0)
+                                    ,_1: _v21._1};}
+                          _U.badCase($moduleName,
+                          "on line 146, column 69 to 76");
+                       }();
+                    })(A2(funP,q,_v17._1));}
+               _U.badCase($moduleName,
+               "on line 146, column 46 to 91");
+            }();
+         })(A2(funP,p,xs)));
+      });
+   });
+   var token = function (xs) {
+      return function () {
+         var _v25 = $String.uncons(xs);
+         switch (_v25.ctor)
+         {case "Just":
+            switch (_v25._0.ctor)
+              {case "_Tuple2": return A2(and,
+                   A2(map,
+                   $String.cons,
+                   symbol(_v25._0._0)),
+                   token(_v25._0._1));}
+              break;
+            case "Nothing":
+            return succeed("");}
+         _U.badCase($moduleName,
+         "between lines 94 and 98");
+      }();
+   };
+   var many = function (p) {
+      return Direct(function (xs) {
+         return function () {
+            var _v29 = A2(funP,p,xs);
+            switch (_v29.ctor)
+            {case "[]": return A2(funP,
+                 succeed(_L.fromArray([])),
+                 xs);}
+            return A2(funP,
+            A2(and,
+            A2(map,
+            F2(function (x,y) {
+               return A2($List._op["::"],
+               x,
+               y);
+            }),
+            p),
+            many(p)),
+            xs);
+         }();
+      });
+   };
+   var some = function (p) {
+      return A2(and,
+      A2(map,
+      F2(function (x,y) {
+         return A2($List._op["::"],
+         x,
+         y);
+      }),
+      p),
+      many(p));
+   };
+   var separatedBy = F2(function (p,
+   s) {
+      return A2(and,
+      A2(map,
+      F2(function (x,y) {
+         return A2($List._op["::"],
+         x,
+         y);
+      }),
+      p),
+      many(A2(and,
+      A2(map,
+      F2(function (x,y) {
+         return y;
+      }),
+      s),
+      p)));
+   });
+   _op["<*>"] = and;
+   _op["<*"] = F2(function (p,q) {
+      return A2(and,
+      A2(map,$Basics.always,p),
+      q);
+   });
+   _op["*>"] = F2(function (p,q) {
+      return A2(and,
+      A2(map,
+      $Basics.flip($Basics.always),
+      p),
+      q);
+   });
+   var andThen = F2(function (p,
+   f) {
+      return Direct(function (xs) {
+         return $List.concat($List.map(function (_v30) {
+            return function () {
+               switch (_v30.ctor)
+               {case "_Tuple2": return A2(funP,
+                    f(_v30._0),
+                    _v30._1);}
+               _U.badCase($moduleName,
+               "on line 154, column 45 to 58");
+            }();
+         })(A2(funP,p,xs)));
+      });
+   });
+   var end = Direct(function (xs) {
+      return function () {
+         switch (xs)
+         {case "": return A2(funP,
+              succeed({ctor: "_Tuple0"}),
+              xs);}
+         return _L.fromArray([]);
+      }();
+   });
+   _elm.Parser.values = {_op: _op
+                        ,parse: parse
+                        ,parseAll: parseAll
+                        ,map: map
+                        ,or: or
+                        ,and: and
+                        ,andThen: andThen
+                        ,succeed: succeed
+                        ,satisfy: satisfy
+                        ,empty: empty
+                        ,symbol: symbol
+                        ,token: token
+                        ,choice: choice
+                        ,optional: optional
+                        ,many: many
+                        ,some: some
+                        ,separatedBy: separatedBy
+                        ,end: end
+                        ,recursively: recursively};
+   return _elm.Parser.values;
+};

@@ -1,0 +1,140 @@
+Elm.Lazy = Elm.Lazy || {};
+Elm.Lazy.make = function (_elm) {
+   "use strict";
+   _elm.Lazy = _elm.Lazy || {};
+   if (_elm.Lazy.values)
+   return _elm.Lazy.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Lazy",
+   $Native$Lazy = Elm.Native.Lazy.make(_elm);
+   var force = function (_v0) {
+      return function () {
+         switch (_v0.ctor)
+         {case "Lazy":
+            return _v0._0({ctor: "_Tuple0"});}
+         _U.badCase($moduleName,
+         "on line 58, column 3 to 10");
+      }();
+   };
+   var Lazy = function (a) {
+      return {ctor: "Lazy",_0: a};
+   };
+   var lazy = function (thunk) {
+      return Lazy($Native$Lazy.memoize(thunk));
+   };
+   var map = F2(function (f,a) {
+      return lazy(function (_v3) {
+         return function () {
+            switch (_v3.ctor)
+            {case "_Tuple0":
+               return f(force(a));}
+            _U.badCase($moduleName,
+            "on line 72, column 16 to 26");
+         }();
+      });
+   });
+   var map2 = F3(function (f,a,b) {
+      return lazy(function (_v5) {
+         return function () {
+            switch (_v5.ctor)
+            {case "_Tuple0": return A2(f,
+                 force(a),
+                 force(b));}
+            _U.badCase($moduleName,
+            "on line 88, column 16 to 36");
+         }();
+      });
+   });
+   var map3 = F4(function (f,
+   a,
+   b,
+   c) {
+      return lazy(function (_v7) {
+         return function () {
+            switch (_v7.ctor)
+            {case "_Tuple0": return A3(f,
+                 force(a),
+                 force(b),
+                 force(c));}
+            _U.badCase($moduleName,
+            "on line 93, column 16 to 46");
+         }();
+      });
+   });
+   var map4 = F5(function (f,
+   a,
+   b,
+   c,
+   d) {
+      return lazy(function (_v9) {
+         return function () {
+            switch (_v9.ctor)
+            {case "_Tuple0": return A4(f,
+                 force(a),
+                 force(b),
+                 force(c),
+                 force(d));}
+            _U.badCase($moduleName,
+            "on line 98, column 16 to 56");
+         }();
+      });
+   });
+   var map5 = F6(function (f,
+   a,
+   b,
+   c,
+   d,
+   e) {
+      return lazy(function (_v11) {
+         return function () {
+            switch (_v11.ctor)
+            {case "_Tuple0": return A5(f,
+                 force(a),
+                 force(b),
+                 force(c),
+                 force(d),
+                 force(e));}
+            _U.badCase($moduleName,
+            "on line 103, column 16 to 66");
+         }();
+      });
+   });
+   var apply = F2(function (f,x) {
+      return lazy(function (_v13) {
+         return function () {
+            switch (_v13.ctor)
+            {case "_Tuple0":
+               return A2(force,f,force(x));}
+            _U.badCase($moduleName,
+            "on line 116, column 17 to 34");
+         }();
+      });
+   });
+   var andThen = F2(function (a,
+   callback) {
+      return lazy(function (_v15) {
+         return function () {
+            switch (_v15.ctor)
+            {case "_Tuple0":
+               return force(callback(force(a)));}
+            _U.badCase($moduleName,
+            "on line 146, column 16 to 40");
+         }();
+      });
+   });
+   _elm.Lazy.values = {_op: _op
+                      ,force: force
+                      ,lazy: lazy
+                      ,map: map
+                      ,map2: map2
+                      ,map3: map3
+                      ,map4: map4
+                      ,map5: map5
+                      ,apply: apply
+                      ,andThen: andThen};
+   return _elm.Lazy.values;
+};

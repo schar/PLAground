@@ -1,0 +1,350 @@
+Elm.Main = Elm.Main || {};
+Elm.Main.make = function (_elm) {
+   "use strict";
+   _elm.Main = _elm.Main || {};
+   if (_elm.Main.values)
+   return _elm.Main.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Main",
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $Html$Lazy = Elm.Html.Lazy.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $PLA = Elm.PLA.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $Utils = Elm.Utils.make(_elm);
+   var dispStack = function (s) {
+      return $Html.li(_L.fromArray([$Html$Attributes.$class("stack")]))($List.map(function ($) {
+         return $Html.text($Basics.toString($));
+      })($Array.toList(s)));
+   };
+   var dispLFs = F3(function (msg,
+   hist,
+   high) {
+      return function () {
+         switch (msg.ctor)
+         {case "Just":
+            return A2($Html.div,
+              _L.fromArray([$Html$Attributes.$class("parse-msg")]),
+              _L.fromArray([$Html.text(msg._0)]));
+            case "Nothing":
+            return $Html.div(_L.fromArray([$Html$Attributes.$class("lfs")]))($List.reverse($Basics.fst(A2($Basics.flip,
+              A2($Basics.flip,
+              $List.foldr,
+              {ctor: "_Tuple2"
+              ,_0: _L.fromArray([])
+              ,_1: {ctor: "_Tuple2"
+                   ,_0: 1
+                   ,_1: 0}}),
+              hist)(F2(function (lf,_v2) {
+                 return function () {
+                    switch (_v2.ctor)
+                    {case "_Tuple2":
+                       switch (_v2._1.ctor)
+                         {case "_Tuple2":
+                            return {ctor: "_Tuple2"
+                                   ,_0: A2($List._op["::"],
+                                   A2($Html.div,
+                                   _L.fromArray([$Html$Attributes.$class("lf")
+                                                ,_U.eq($Maybe.Just(_v2._1._1),
+                                                high) ? $Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                                                             ,_0: "color"
+                                                                                             ,_1: "red"}
+                                                                                            ,{ctor: "_Tuple2"
+                                                                                             ,_0: "font-weight"
+                                                                                             ,_1: "700"}])) : $Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
+                                                                                                                                                   ,_0: "opacity"
+                                                                                                                                                   ,_1: $Basics.toString(_v2._1._0)}]))]),
+                                   _L.fromArray([$Html.text($PLA.showFormula(lf))])),
+                                   _v2._0)
+                                   ,_1: {ctor: "_Tuple2"
+                                        ,_0: 0.8 * _v2._1._0
+                                        ,_1: _v2._1._1 + 1}};}
+                         break;}
+                    _U.badCase($moduleName,
+                    "between lines 127 and 135");
+                 }();
+              })))));}
+         _U.badCase($moduleName,
+         "between lines 121 and 136");
+      }();
+   });
+   var update = F2(function (action,
+   model) {
+      return function () {
+         switch (action.ctor)
+         {case "CompileQuery":
+            return function () {
+                 var formula = $PLA.parseForm(model.query);
+                 return function () {
+                    switch (formula.ctor)
+                    {case "Err":
+                       return _U.replace([["parseMsg"
+                                          ,$Maybe.Just("FAIL")]],
+                         model);
+                       case "Ok": return function () {
+                            var c = $List.foldl1($Basics.flip($PLA.Conj))(A2($Basics._op["++"],
+                            model.lfHist,
+                            _L.fromArray([formula._0])));
+                            return function () {
+                               var _v16 = A3($PLA.$eval,
+                               c,
+                               model.env,
+                               model.startStack);
+                               switch (_v16.ctor)
+                               {case "Err":
+                                  return _U.replace([["parseMsg"
+                                                     ,$Maybe.Just(_v16._0)]],
+                                    model);
+                                  case "Ok":
+                                  return _U.replace([["lfHist"
+                                                     ,A2($Basics._op["++"],
+                                                     model.lfHist,
+                                                     _L.fromArray([formula._0]))]
+                                                    ,["parseMsg"
+                                                     ,$Maybe.Nothing]],
+                                    model);}
+                               _U.badCase($moduleName,
+                               "between lines 95 and 98");
+                            }();
+                         }();}
+                    _U.badCase($moduleName,
+                    "between lines 91 and 98");
+                 }();
+              }();
+            case "EditEnv":
+            return function () {
+                 var newEnv = function () {
+                    var _v19 = $Utils.parseEnv(action._0);
+                    switch (_v19.ctor)
+                    {case "Err": return model.env;
+                       case "Ok": return _v19._0;}
+                    _U.badCase($moduleName,
+                    "between lines 71 and 74");
+                 }();
+                 return _U.replace([["env"
+                                    ,newEnv]
+                                   ,["envBox",action._0]],
+                 model);
+              }();
+            case "EditInput":
+            return function () {
+                 var newInp = function () {
+                    var _v22 = $Utils.parseInp(action._0);
+                    switch (_v22.ctor)
+                    {case "Err":
+                       return model.startStack;
+                       case "Ok": return _v22._0;}
+                    _U.badCase($moduleName,
+                    "between lines 78 and 81");
+                 }();
+                 return _U.replace([["startStack"
+                                    ,newInp]
+                                   ,["startBox",action._0]],
+                 model);
+              }();
+            case "HighlightFormula":
+            return _U.cmp(action._0,
+              0) < 0 ? _U.replace([["lfHigh"
+                                   ,$Maybe.Nothing]],
+              model) : _U.replace([["lfHigh"
+                                   ,$Maybe.Just($List.length(model.lfHist) - action._0 - 1)]],
+              model);
+            case "NoOp": return model;
+            case "UpdateQuery":
+            return _U.replace([["query"
+                               ,action._0]],
+              model);}
+         _U.badCase($moduleName,
+         "between lines 64 and 98");
+      }();
+   });
+   var CompileQuery = {ctor: "CompileQuery"};
+   var HighlightFormula = function (a) {
+      return {ctor: "HighlightFormula"
+             ,_0: a};
+   };
+   var EditInput = function (a) {
+      return {ctor: "EditInput"
+             ,_0: a};
+   };
+   var EditEnv = function (a) {
+      return {ctor: "EditEnv"
+             ,_0: a};
+   };
+   var UpdateQuery = function (a) {
+      return {ctor: "UpdateQuery"
+             ,_0: a};
+   };
+   var NoOp = {ctor: "NoOp"};
+   var updates = $Signal.channel(NoOp);
+   var queryEntry = function (query) {
+      return A2($Html.input,
+      _L.fromArray([$Html$Attributes.id("query")
+                   ,$Html$Attributes.placeholder("Enter expression")
+                   ,$Html$Attributes.value(query)
+                   ,$Html$Attributes.autofocus(true)
+                   ,A3($Html$Events.on,
+                   "input",
+                   $Html$Events.targetValue,
+                   function ($) {
+                      return $Signal.send(updates)(UpdateQuery($));
+                   })
+                   ,$Utils.onEnter(A2($Signal.send,
+                   updates,
+                   CompileQuery))]),
+      _L.fromArray([]));
+   };
+   var dispStacks = F3(function (lfs,
+   env,
+   _v25) {
+      return function () {
+         switch (_v25.ctor)
+         {case "_Tuple2":
+            return function () {
+                 var _v29 = A3($Utils.evals,
+                 lfs,
+                 env,
+                 _v25._0);
+                 switch (_v29.ctor)
+                 {case "Err":
+                    return $Html.text("This is impossible");
+                    case "Ok":
+                    return $Html.div(_L.fromArray([$Html$Attributes.id("stack-hist")]))(A2($List._op["::"],
+                      _v25._1,
+                      A2($Basics.flip,
+                      $List.indexedMap,
+                      _v29._0)(F2(function (n,sl) {
+                         return $Html.div(_L.fromArray([$Html$Attributes.$class("outputs")
+                                                       ,$Html$Events.onMouseOver(A2($Signal.send,
+                                                       updates,
+                                                       HighlightFormula(n)))
+                                                       ,$Html$Events.onMouseLeave(A2($Signal.send,
+                                                       updates,
+                                                       HighlightFormula(-1)))]))(function () {
+                            switch (sl.ctor)
+                            {case "[]":
+                               return _L.fromArray([$Html.text("False")]);}
+                            return $List.map($Html.ul(_L.fromArray([$Html$Attributes.$class("stack-list")])))($Utils.chunks(10)(A2($List.map,
+                            dispStack,
+                            sl)));
+                         }());
+                      }))));}
+                 _U.badCase($moduleName,
+                 "between lines 152 and 169");
+              }();}
+         _U.badCase($moduleName,
+         "between lines 152 and 169");
+      }();
+   });
+   var inpEntry = function (inp) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("inp")]),
+      _L.fromArray([A2($Html.input,
+      _L.fromArray([$Html$Attributes.id("inp")
+                   ,$Html$Attributes.placeholder("s")
+                   ,A3($Html$Events.on,
+                   "input",
+                   $Html$Events.targetValue,
+                   function ($) {
+                      return $Signal.send(updates)(EditInput($));
+                   })]),
+      _L.fromArray([]))]));
+   };
+   var view = function (model) {
+      return A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("base-bg base-copy")]),
+      _L.fromArray([A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("page-wrap")]),
+      _L.fromArray([A2($Html.div,
+      _L.fromArray([$Html$Attributes.$class("column-main")]),
+      _L.fromArray([A4($Html$Lazy.lazy3,
+                   dispLFs,
+                   model.parseMsg,
+                   model.lfHist,
+                   model.lfHigh)
+                   ,A2($Html.div,
+                   _L.fromArray([$Html$Attributes.$class("sh")]),
+                   _L.fromArray([A2($Html.pre,
+                   _L.fromArray([]),
+                   _L.fromArray([A2($Html.code,
+                   _L.fromArray([]),
+                   _L.fromArray([A2($Html$Lazy.lazy,
+                   queryEntry,
+                   model.query)]))]))]))
+                   ,A4($Html$Lazy.lazy3,
+                   dispStacks,
+                   model.lfHist,
+                   model.env,
+                   {ctor: "_Tuple2"
+                   ,_0: model.startStack
+                   ,_1: A2($Html$Lazy.lazy,
+                   inpEntry,
+                   model.startBox)})]))]))]));
+   };
+   var defModel = {_: {}
+                  ,env: $Utils.emptyEnv
+                  ,envBox: "\n"
+                  ,lfHigh: $Maybe.Nothing
+                  ,lfHist: _L.fromArray([$PLA.Exists($PLA.Var(_U.chr("x")))(A2($PLA.Pred,
+                  _U.chr("e"),
+                  $PLA.Var(_U.chr("x"))))])
+                  ,parseMsg: $Maybe.Nothing
+                  ,query: "Ex e(x)"
+                  ,startBox: ""
+                  ,startStack: $Array.empty};
+   var model = A3($Signal.foldp,
+   update,
+   defModel,
+   $Signal.subscribe(updates));
+   var main = A2($Signal.map,
+   view,
+   model);
+   var Model = F8(function (a,
+   b,
+   c,
+   d,
+   e,
+   f,
+   g,
+   h) {
+      return {_: {}
+             ,env: e
+             ,envBox: d
+             ,lfHigh: c
+             ,lfHist: b
+             ,parseMsg: h
+             ,query: a
+             ,startBox: f
+             ,startStack: g};
+   });
+   _elm.Main.values = {_op: _op
+                      ,Model: Model
+                      ,defModel: defModel
+                      ,NoOp: NoOp
+                      ,UpdateQuery: UpdateQuery
+                      ,EditEnv: EditEnv
+                      ,EditInput: EditInput
+                      ,HighlightFormula: HighlightFormula
+                      ,CompileQuery: CompileQuery
+                      ,update: update
+                      ,view: view
+                      ,dispLFs: dispLFs
+                      ,queryEntry: queryEntry
+                      ,dispStacks: dispStacks
+                      ,dispStack: dispStack
+                      ,inpEntry: inpEntry
+                      ,main: main
+                      ,model: model
+                      ,updates: updates};
+   return _elm.Main.values;
+};

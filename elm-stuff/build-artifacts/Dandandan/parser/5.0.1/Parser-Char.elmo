@@ -1,0 +1,45 @@
+Elm.Parser = Elm.Parser || {};
+Elm.Parser.Char = Elm.Parser.Char || {};
+Elm.Parser.Char.make = function (_elm) {
+   "use strict";
+   _elm.Parser = _elm.Parser || {};
+   _elm.Parser.Char = _elm.Parser.Char || {};
+   if (_elm.Parser.Char.values)
+   return _elm.Parser.Char.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Parser.Char",
+   $Char = Elm.Char.make(_elm),
+   $Parser = Elm.Parser.make(_elm);
+   var between = F3(function (x,
+   y,
+   parser) {
+      return A2($Parser._op["<*"],
+      A2($Parser._op["*>"],
+      $Parser.symbol(x),
+      parser),
+      $Parser.symbol(y));
+   });
+   var parenthesized = A2(between,
+   _U.chr("("),
+   _U.chr(")"));
+   var bracketed = A2(between,
+   _U.chr("["),
+   _U.chr("]"));
+   var braced = A2(between,
+   _U.chr("{"),
+   _U.chr("}"));
+   var lower = $Parser.satisfy($Char.isLower);
+   var upper = $Parser.satisfy($Char.isUpper);
+   _elm.Parser.Char.values = {_op: _op
+                             ,upper: upper
+                             ,lower: lower
+                             ,between: between
+                             ,parenthesized: parenthesized
+                             ,bracketed: bracketed
+                             ,braced: braced};
+   return _elm.Parser.Char.values;
+};
