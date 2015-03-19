@@ -15,6 +15,8 @@ import Array as Ar
 
 import PLA (..)
 
+flip2 f b c a = f a b c
+
 onEnter : Sig.Message -> Attribute
 onEnter message =
     on "keydown" (Json.customDecoder keyCode is13) (always message)

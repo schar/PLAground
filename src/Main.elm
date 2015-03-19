@@ -1,16 +1,15 @@
+import Debug
 -- Basic Data
 import List
 import Array as Ar
 import Result (..)
 
 -- PLA
-import Parser (parse)
 import PLA (..)
 import Utils (..)
 
 -- Reactive Graphics
 import Signal as Sig
-import Window
 import Html (..)
 import Html.Attributes (..)
 import Html.Events (..)
@@ -23,27 +22,40 @@ import Html.Lazy (..)
 
 type alias Model =
   { query : String
-  , lfHist : List Formula
-  , lfHigh : Maybe Int
+  , lfHist : List LF
   , envBox : String
   , env : Env
   -- , lex : Lexicon
   , startBox : String
   , startStack : Stack
-  , parseMsg : Maybe String
+  , parseMsg : Bool
+  , refMsg : Maybe String
+  }
+
+type alias LF =
+  { formula : Formula
+  , active : Bool
+  , highlight : Bool
+  }
+
+defLF : Formula -> LF
+defLF form =
+  { formula = form
+  , active = True
+  , highlight = False
   }
 
 defModel : Model
 defModel =
   { query = "Ex e(x)"
-  , lfHist = [Exists (Var 'x') <| Pred 'e' (Var 'x')]
-  , lfHigh = Nothing
+  , lfHist = [defLF <| Exists (Var 'x') <| Pred 'e' (Var 'x')]
   , envBox = "\n"
   , env = emptyEnv
   -- , lex = defLex
   , startBox = ""
   , startStack = Ar.empty
-  , parseMsg = Nothing
+  , parseMsg = False
+  , refMsg = Nothing
   }
 
 
@@ -56,8 +68,9 @@ type Action
   | UpdateQuery String
   | EditEnv String
   | EditInput String
-  | HighlightFormula Int
+  | AccentFormula Int Bool
   | CompileQuery
+  | ToggleFormula Int
 
 update : Action -> Model -> Model
 update action model =
@@ -81,21 +94,43 @@ update action model =
       in  {model | startStack <- newInp
                  , startBox <- s}
 
-    HighlightFormula n ->
-      if n < 0
-         then {model | lfHigh <- Nothing}
-         else {model | lfHigh <- Just <| List.length model.lfHist - n - 1}
+    AccentFormula ind isInFocus ->
+      let newlfs =
+        fst <|
+        flip2 List.foldl ([], 0) model.lfHist <|
+        \lf (lfs, n) -> 
+          if lf.active
+             then ( lfs ++
+                    [if n == ind then {lf | highlight <- isInFocus} else lf]
+                  , n + 1
+                  )
+             else ( lf :: lfs, n )
+      in  {model | lfHist <- newlfs}
+
+    ToggleFormula ind ->
+      let updateLFs n lf = if n == ind
+                              then {lf | active <- not lf.active}
+                              else lf
+          newm = {model | lfHist <- List.indexedMap updateLFs model.lfHist}
+          c = List.foldl (flip Conj) (Pred 'e' (Con 2)) <|
+              List.map .formula <| List.filter .active newm.lfHist
+      in  case eval c newm.env newm.startStack of
+            Err msg -> {newm | refMsg <- Just msg}
+            Ok _ -> {newm | refMsg <- Nothing}
 
     CompileQuery ->
       let formula = parseForm model.query
       in  case formula of
-            Err _ -> {model | parseMsg <- Just "FAIL"}
+            Err _ -> {model | parseMsg <- True}
             Ok lf ->
-              let c = List.foldl1 (flip Conj) <| model.lfHist ++ [lf]
+              let c = List.foldl1 (flip Conj) <|
+                      (List.map .formula <| List.filter .active model.lfHist)
+                      ++ [lf]
               in  case eval c model.env model.startStack of
-                    Err msg -> {model | parseMsg <- Just msg}
-                    Ok xxs -> {model | lfHist <- model.lfHist ++ [lf]
-                                     , parseMsg <- Nothing}
+                    Err msg -> {model | refMsg <- Just msg}
+                    Ok xxs -> {model | lfHist <- model.lfHist ++ [defLF lf]
+                                     , parseMsg <- False
+                                     , refMsg <- Nothing}
 
 
 ------------------------------------------------------------------------------
@@ -107,33 +142,49 @@ view model =
   div [ class "base-bg base-copy" ]
     [ div [ class "page-wrap" ]
       [ div [ class "column-main" ]
-        [ lazy3 dispLFs model.parseMsg model.lfHist model.lfHigh
+        [ lazy2 dispLFs model.parseMsg model.lfHist
         , div [ class "sh" ]
           [ pre [ ] [ code [ ] [ lazy queryEntry model.query ] ] ]
         , lazy3 dispStacks
-            model.lfHist model.env (model.startStack, lazy inpEntry model.startBox)
+            (model.refMsg, model.lfHist)
+            model.env
+            (model.startStack, lazy inpEntry model.startBox)
         ]
       ]
     ]
 
-dispLFs : Maybe String -> List Formula -> Maybe Int -> Html
-dispLFs msg hist high =
-  case msg of
-    Just m -> div [ class "parse-msg" ] [ text m ]
-    Nothing ->
-      div [ class "lfs" ] <| List.reverse << fst <|
-        flip (flip List.foldr ([], (1, 0))) hist <|
-          \lf (lfs,(n,ind)) ->
-            ( div
-                [ class "lf"
-                , if Just ind == high
-                     then style [("color", "red"), ("font-weight", "700")]
-                     else style [("opacity", toString n)]
-                ]
-                [text <| showFormula lf]
-              :: lfs
-            , (0.8 * n, ind + 1)
-            )
+dispLFs : Bool -> List LF -> Html
+dispLFs msg hist =
+  if msg
+     then div [ class "parse-msg" ] [ text "FAIL" ]
+     else 
+       div [ class "lfs" ] 
+         <| fst
+         <| flip2 List.foldl
+            ([], (0.8 ^ (toFloat <| List.length hist - 1), 0))
+            hist
+         <| \lf (lfdivs, (n,ind)) ->
+              ( div [ classList
+                        [ ("lf", True)
+                        , ("lf-inactive", not lf.active)
+                        , ("lf-highlight", lf.highlight)
+                        ]
+                    , style [ ( "opacity"
+                              , toString (if lf.active then n else 1)
+                              ) ]
+                    ]
+                  [ input
+                      [ class "lf-toggle"
+                      , type' "checkbox"
+                      , checked (not lf.active)
+                      , onClick (Sig.send updates <| ToggleFormula ind)
+                      ]
+                      [ ]
+                  , text <| showFormula lf.formula
+                  ]
+                :: lfdivs
+              , (1.25 * n, ind + 1)
+              )
 
 queryEntry : String -> Html
 queryEntry query =
@@ -147,26 +198,32 @@ queryEntry query =
     ]
     []
 
-dispStacks : List Formula -> Env -> (Stack, Html) -> Html
-dispStacks lfs env (start, startbox) =
-  case evals lfs env start of
-    Err _ -> text "This is impossible"
-    Ok xxs -> 
-      div [id "stack-hist"] <|
-        startbox ::
-      -- List.intersperse (div [ ] [text "->"]) <|
-        (flip List.indexedMap xxs <|
-          -- (List.reverse <| List.tail <| List.reverse xxs) <|
-          \n sl ->
-            div [ class "outputs"
-                , onMouseOver (Sig.send updates (HighlightFormula n))
-                , onMouseLeave (Sig.send updates (HighlightFormula -1)) ]
-              <| case sl of
-                   [] -> [text "False"]
-                   _  ->
-                     List.map (ul [class "stack-list"]) -- List Html
-                     <| chunks 10 -- List (List Html)
-                     <| List.map dispStack sl) -- List Html
+dispStacks : (Maybe String, List LF) -> Env -> (Stack, Html) -> Html
+dispStacks (msg, lfs) e (start, startbox) =
+  case msg of
+    Just m -> div [ class "parse-msg" ] [ text m ]
+    Nothing ->
+      case List.filter .active lfs of
+        [] -> div [id "stack-hist"] [startbox]
+        _  ->
+          case evals (List.map .formula <| List.filter .active lfs) e start of
+            Err _ -> div [ id "stack-hist" ] [ text "this is impossible" ]
+            Ok xxs -> 
+              div [id "stack-hist"] <|
+                startbox ::
+                (flip List.indexedMap xxs <|
+                \n sl ->
+                  div
+                    [ class "outputs"
+                    , onMouseOver (Sig.send updates <| AccentFormula n True)
+                    , onMouseLeave (Sig.send updates <| AccentFormula n False)
+                    ] <|
+                    case sl of
+                      [] -> [text "False"]
+                      _  ->
+                        List.map (ul [class "stack-list"]) -- List Html
+                        <| chunks 10 -- List (List Html)
+                        <| List.map dispStack sl) -- List Html
 
 dispStack : Stack -> Html
 dispStack s =

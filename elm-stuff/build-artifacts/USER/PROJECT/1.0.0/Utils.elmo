@@ -112,7 +112,14 @@ Elm.Utils.make = function (_elm) {
       is13),
       $Basics.always(message));
    };
+   var flip2 = F4(function (f,
+   b,
+   c,
+   a) {
+      return A3(f,a,b,c);
+   });
    _elm.Utils.values = {_op: _op
+                       ,flip2: flip2
                        ,onEnter: onEnter
                        ,is13: is13
                        ,emptyEnv: emptyEnv
