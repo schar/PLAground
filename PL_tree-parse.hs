@@ -27,7 +27,7 @@ helper incomingState = do
       outputStrLn $ "\ESC[2J"
         ++ "**Input**\n" ++ brake ++ "\n" ++ input
         ++ "\n\n**Parse**\n" ++ brake ++ "\n"
-        ++ show (gimme $ parse input)
+        ++ parseToTree input
         ++ "\n\n"
         ++ "**Meaning**\n" ++ brake ++ "\n{\n"
         ++ showState (concat [interpret input s | s <- incomingState])
@@ -260,18 +260,21 @@ termTree term = case term of
 
 toStringTree :: Formula -> Tree String
 toStringTree tree = case tree of
-  Pred(a, b) -> Node "Pred" [ Node [a] []
+  Pred(a, b) -> Node "Formula" [ Node [a] []
                             , termTree b ]
-  Rel(a, (b, c)) -> Node "Rel" [ Node "eq" []
+  Rel(a, (b, c)) -> Node "Formula" [ Node "eq" []
                                , Node "Pair" [ termTree b
                                              , termTree c ] ]
-  Neg f -> Node "~" [ toStringTree f ]
-  Conj(f1, f2) -> Node "Conj" [ toStringTree f1
+  Neg f -> Node "Formula" [ Node "~" []
+                          , toStringTree f ]
+  Conj(f1, f2) -> Node "Formula" [ toStringTree f1
                               , Node "&" []
                               , toStringTree f2 ]
-  Exists(Var v, f) -> Node "Exists" [ termTree $ Var v
-                                    , toStringTree f]
+  Exists(Var v, f) -> Node "Formula" [ termTree . Pro $ "Ǝ" ++ [v]
+                                     , toStringTree f] -- hack here, using
+                                                       -- Pro constructor
+                                                       -- ¯\_(ツ)_/¯
   _ -> Node [] []
 
-parseToTree :: String -> IO ()
-parseToTree input = putStrLn . drawVerticalTree . toStringTree . gimme . parse $ input
+parseToTree :: String -> String
+parseToTree input = drawVerticalTree . toStringTree . gimme . parse $ input
