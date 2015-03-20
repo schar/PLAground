@@ -1,7 +1,9 @@
 module Main (main) where
 
-import System.Console.Haskeline
-import Data.Char
+import           Data.Char
+import           Data.Tree
+import           Data.Tree.Pretty
+import           System.Console.Haskeline
 
 main :: IO ()
 main = do
@@ -196,7 +198,7 @@ type Stack = [Int]
 type Prop = Stack -> [Stack]
 
 domain :: [Int]
-domain = [1..4]
+domain = [0..9]
 
 evalTerm :: Term -> Env -> Stack -> Int
 evalTerm t e s = case t of
@@ -247,3 +249,29 @@ exP p s = [s' ++ [x] | x <- domain, s' <- p x s]
 
 interpret :: String -> Stack -> [Stack]
 interpret input = (eval $ gimme $ parse input) (\_ -> -666)
+
+-- tree pretty-printing
+-- first parse into string tree
+termTree :: Term -> Tree String
+termTree term = case term of
+  Con x -> Node [x] []
+  Var x -> Node [x] []
+  Pro x -> Node x []
+
+toStringTree :: Formula -> Tree String
+toStringTree tree = case tree of
+  Pred(a, b) -> Node "Pred" [ Node [a] []
+                            , termTree b ]
+  Rel(a, (b, c)) -> Node "Rel" [ Node "eq" []
+                               , Node "Pair" [ termTree b
+                                             , termTree c ] ]
+  Neg f -> Node "~" [ toStringTree f ]
+  Conj(f1, f2) -> Node "Conj" [ toStringTree f1
+                              , Node "&" []
+                              , toStringTree f2 ]
+  Exists(Var v, f) -> Node "Exists" [ termTree $ Var v
+                                    , toStringTree f]
+  _ -> Node [] []
+
+parseToTree :: String -> IO ()
+parseToTree input = putStrLn . drawVerticalTree . toStringTree . gimme . parse $ input
