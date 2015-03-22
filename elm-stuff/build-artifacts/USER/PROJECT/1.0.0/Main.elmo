@@ -16,6 +16,7 @@ Elm.Main.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $Html$Lazy = Elm.Html.Lazy.make(_elm),
+   $Instructions = Elm.Instructions.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $PLA = Elm.PLA.make(_elm),
@@ -27,6 +28,7 @@ Elm.Main.make = function (_elm) {
          return $Html.text($Basics.toString($));
       })($Array.toList(s)));
    };
+   var ToggleInstr = {ctor: "ToggleInstr"};
    var ToggleFormula = function (a) {
       return {ctor: "ToggleFormula"
              ,_0: a};
@@ -52,11 +54,36 @@ Elm.Main.make = function (_elm) {
    };
    var NoOp = {ctor: "NoOp"};
    var updates = $Signal.channel(NoOp);
+   var dispInstr = function (instr) {
+      return function () {
+         switch (instr.ctor)
+         {case "Just":
+            return A2($Html.div,
+              _L.fromArray([$Html$Attributes.$class("instructions")]),
+              _L.fromArray([A2($Html.div,
+                           _L.fromArray([$Html$Attributes.$class("instructions-close")]),
+                           _L.fromArray([A2($Html.a,
+                           _L.fromArray([$Html$Attributes.href("#")
+                                        ,$Html$Events.onClick(A2($Signal.send,
+                                        updates,
+                                        ToggleInstr))]),
+                           _L.fromArray([$Html.text("Close")]))]))
+                           ,A2($Html.div,
+                           _L.fromArray([$Html$Attributes.$class("instructions-content")]),
+                           _L.fromArray([instr._0]))]));
+            case "Nothing":
+            return A2($Html.div,
+              _L.fromArray([]),
+              _L.fromArray([]));}
+         _U.badCase($moduleName,
+         "between lines 169 and 181");
+      }();
+   };
    var dispLFs = F2(function (msg,
    hist) {
       return msg ? A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("parse-msg")]),
-      _L.fromArray([$Html.text("FAIL")])) : $Html.div(_L.fromArray([$Html$Attributes.$class("lfs")]))($Basics.fst(A3($Utils.flip2,
+      _L.fromArray([$Html.text("*")])) : $Html.div(_L.fromArray([$Html$Attributes.$class("lfs")]))($Basics.fst(A3($Utils.flip2,
       $List.foldl,
       {ctor: "_Tuple2"
       ,_0: _L.fromArray([])
@@ -64,11 +91,11 @@ Elm.Main.make = function (_elm) {
            ,_0: Math.pow(0.8,
            $Basics.toFloat($List.length(hist) - 1))
            ,_1: 0}},
-      hist)(F2(function (lf,_v0) {
+      hist)(F2(function (lf,_v2) {
          return function () {
-            switch (_v0.ctor)
+            switch (_v2.ctor)
             {case "_Tuple2":
-               switch (_v0._1.ctor)
+               switch (_v2._1.ctor)
                  {case "_Tuple2":
                     return {ctor: "_Tuple2"
                            ,_0: A2($List._op["::"],
@@ -84,28 +111,28 @@ Elm.Main.make = function (_elm) {
                                                                                   ,_1: lf.highlight}]))
                                         ,$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
                                                                               ,_0: "opacity"
-                                                                              ,_1: $Basics.toString(lf.active ? _v0._1._0 : 1)}]))]),
+                                                                              ,_1: $Basics.toString(lf.active ? _v2._1._0 : 1)}]))]),
                            _L.fromArray([A2($Html.input,
                                         _L.fromArray([$Html$Attributes.$class("lf-toggle")
                                                      ,$Html$Attributes.type$("checkbox")
                                                      ,$Html$Attributes.checked($Basics.not(lf.active))
-                                                     ,$Html$Events.onClick($Signal.send(updates)(ToggleFormula(_v0._1._1)))]),
+                                                     ,$Html$Events.onClick($Signal.send(updates)(ToggleFormula(_v2._1._1)))]),
                                         _L.fromArray([]))
                                         ,$Html.text($PLA.showFormula(lf.formula))])),
-                           _v0._0)
+                           _v2._0)
                            ,_1: {ctor: "_Tuple2"
-                                ,_0: 1.25 * _v0._1._0
-                                ,_1: _v0._1._1 + 1}};}
+                                ,_0: 1.25 * _v2._1._0
+                                ,_1: _v2._1._1 + 1}};}
                  break;}
             _U.badCase($moduleName,
-            "between lines 167 and 186");
+            "between lines 194 and 213");
          }();
       }))));
    });
    var queryEntry = function (query) {
       return A2($Html.input,
       _L.fromArray([$Html$Attributes.id("query")
-                   ,$Html$Attributes.placeholder("Enter expression")
+                   ,$Html$Attributes.placeholder("Enter expression, e.g. Ex e(x)")
                    ,$Html$Attributes.value(query)
                    ,$Html$Attributes.autofocus(true)
                    ,A3($Html$Events.on,
@@ -119,54 +146,54 @@ Elm.Main.make = function (_elm) {
                    CompileQuery))]),
       _L.fromArray([]));
    };
-   var dispStacks = F3(function (_v6,
+   var dispStacks = F3(function (_v8,
    e,
-   _v7) {
+   _v9) {
       return function () {
-         switch (_v7.ctor)
+         switch (_v9.ctor)
          {case "_Tuple2":
             return function () {
-                 switch (_v6.ctor)
+                 switch (_v8.ctor)
                  {case "_Tuple2":
                     return function () {
-                         switch (_v6._0.ctor)
+                         switch (_v8._0.ctor)
                          {case "Just":
                             return A2($Html.div,
                               _L.fromArray([$Html$Attributes.$class("parse-msg")]),
-                              _L.fromArray([$Html.text(_v6._0._0)]));
+                              _L.fromArray([$Html.text(_v8._0._0)]));
                             case "Nothing":
                             return function () {
-                                 var _v16 = A2($List.filter,
+                                 var _v18 = A2($List.filter,
                                  function (_) {
                                     return _.active;
                                  },
-                                 _v6._1);
-                                 switch (_v16.ctor)
+                                 _v8._1);
+                                 switch (_v18.ctor)
                                  {case "[]": return A2($Html.div,
                                       _L.fromArray([$Html$Attributes.id("stack-hist")]),
-                                      _L.fromArray([_v7._1]));}
+                                      _L.fromArray([_v9._1]));}
                                  return function () {
-                                    var _v17 = A3($Utils.evals,
+                                    var _v19 = A3($Utils.evals,
                                     $List.map(function (_) {
                                        return _.formula;
                                     })(A2($List.filter,
                                     function (_) {
                                        return _.active;
                                     },
-                                    _v6._1)),
+                                    _v8._1)),
                                     e,
-                                    _v7._0);
-                                    switch (_v17.ctor)
+                                    _v9._0);
+                                    switch (_v19.ctor)
                                     {case "Err":
                                        return A2($Html.div,
                                          _L.fromArray([$Html$Attributes.id("stack-hist")]),
                                          _L.fromArray([$Html.text("this is impossible")]));
                                        case "Ok":
                                        return $Html.div(_L.fromArray([$Html$Attributes.id("stack-hist")]))(A2($List._op["::"],
-                                         _v7._1,
+                                         _v9._1,
                                          A2($Basics.flip,
                                          $List.indexedMap,
-                                         _v17._0)(F2(function (n,sl) {
+                                         _v19._0)(F2(function (n,sl) {
                                             return $Html.div(_L.fromArray([$Html$Attributes.$class("outputs")
                                                                           ,$Html$Events.onMouseOver($Signal.send(updates)(A2(AccentFormula,
                                                                           n,
@@ -183,17 +210,17 @@ Elm.Main.make = function (_elm) {
                                             }());
                                          }))));}
                                     _U.badCase($moduleName,
-                                    "between lines 209 and 226");
+                                    "between lines 236 and 253");
                                  }();
                               }();}
                          _U.badCase($moduleName,
-                         "between lines 203 and 226");
+                         "between lines 230 and 253");
                       }();}
                  _U.badCase($moduleName,
-                 "between lines 203 and 226");
+                 "between lines 230 and 253");
               }();}
          _U.badCase($moduleName,
-         "between lines 203 and 226");
+         "between lines 230 and 253");
       }();
    });
    var inpEntry = function (inp) {
@@ -210,14 +237,23 @@ Elm.Main.make = function (_elm) {
                    })]),
       _L.fromArray([]))]));
    };
+   var infoFooter = A2($Html.footer,
+   _L.fromArray([$Html$Attributes.id("instr-footer")]),
+   _L.fromArray([A2($Html.a,
+   _L.fromArray([$Html$Attributes.href("#")
+                ,$Html$Events.onClick(A2($Signal.send,
+                updates,
+                ToggleInstr))]),
+   _L.fromArray([$Html.text("Confused?")]))]));
    var view = function (model) {
       return A2($Html.div,
-      _L.fromArray([$Html$Attributes.$class("base-bg base-copy")]),
-      _L.fromArray([A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("page-wrap")]),
       _L.fromArray([A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("column-main")]),
-      _L.fromArray([A3($Html$Lazy.lazy2,
+      _L.fromArray([A2($Html$Lazy.lazy,
+                   dispInstr,
+                   model.instructions)
+                   ,A3($Html$Lazy.lazy2,
                    dispLFs,
                    model.parseMsg,
                    model.lfHist)
@@ -240,25 +276,25 @@ Elm.Main.make = function (_elm) {
                    ,_0: model.startStack
                    ,_1: A2($Html$Lazy.lazy,
                    inpEntry,
-                   model.startBox)})]))]))]));
+                   model.startBox)})
+                   ,infoFooter]))]));
    };
+   var defModel = {_: {}
+                  ,env: $Utils.emptyEnv
+                  ,envBox: "\n"
+                  ,instructions: $Maybe.Nothing
+                  ,lfHist: _L.fromArray([])
+                  ,parseMsg: false
+                  ,query: ""
+                  ,refMsg: $Maybe.Nothing
+                  ,startBox: ""
+                  ,startStack: $Array.empty};
    var defLF = function (form) {
       return {_: {}
              ,active: true
              ,formula: form
              ,highlight: false};
    };
-   var defModel = {_: {}
-                  ,env: $Utils.emptyEnv
-                  ,envBox: "\n"
-                  ,lfHist: _L.fromArray([defLF($PLA.Exists($PLA.Var(_U.chr("x")))(A2($PLA.Pred,
-                  _U.chr("e"),
-                  $PLA.Var(_U.chr("x")))))])
-                  ,parseMsg: false
-                  ,query: "Ex e(x)"
-                  ,refMsg: $Maybe.Nothing
-                  ,startBox: ""
-                  ,startStack: $Array.empty};
    var update = F2(function (action,
    model) {
       return function () {
@@ -271,24 +307,24 @@ Elm.Main.make = function (_elm) {
                  ,_0: _L.fromArray([])
                  ,_1: 0},
                  model.lfHist)(F2(function (lf,
-                 _v28) {
+                 _v30) {
                     return function () {
-                       switch (_v28.ctor)
+                       switch (_v30.ctor)
                        {case "_Tuple2":
                           return lf.active ? {ctor: "_Tuple2"
                                              ,_0: A2($Basics._op["++"],
-                                             _v28._0,
-                                             _L.fromArray([_U.eq(_v28._1,
+                                             _v30._0,
+                                             _L.fromArray([_U.eq(_v30._1,
                                              action._0) ? _U.replace([["highlight"
                                                                       ,action._1]],
                                              lf) : lf]))
-                                             ,_1: _v28._1 + 1} : {ctor: "_Tuple2"
+                                             ,_1: _v30._1 + 1} : {ctor: "_Tuple2"
                                                                  ,_0: A2($Basics._op["++"],
-                                                                 _v28._0,
+                                                                 _v30._0,
                                                                  _L.fromArray([lf]))
-                                                                 ,_1: _v28._1};}
+                                                                 ,_1: _v30._1};}
                        _U.badCase($moduleName,
-                       "between lines 102 and 107");
+                       "between lines 105 and 110");
                     }();
                  })));
                  return _U.replace([["lfHist"
@@ -302,7 +338,8 @@ Elm.Main.make = function (_elm) {
                     switch (formula.ctor)
                     {case "Err":
                        return _U.replace([["parseMsg"
-                                          ,true]],
+                                          ,true]
+                                         ,["refMsg",$Maybe.Nothing]],
                          model);
                        case "Ok": return function () {
                             var c = $List.foldl1($Basics.flip($PLA.Conj))(A2($Basics._op["++"],
@@ -315,14 +352,16 @@ Elm.Main.make = function (_elm) {
                             model.lfHist)),
                             _L.fromArray([formula._0])));
                             return function () {
-                               var _v35 = A3($PLA.$eval,
+                               var _v37 = A3($PLA.$eval,
                                c,
                                model.env,
                                model.startStack);
-                               switch (_v35.ctor)
+                               switch (_v37.ctor)
                                {case "Err":
-                                  return _U.replace([["refMsg"
-                                                     ,$Maybe.Just(_v35._0)]],
+                                  return _U.replace([["parseMsg"
+                                                     ,false]
+                                                    ,["refMsg"
+                                                     ,$Maybe.Just(_v37._0)]],
                                     model);
                                   case "Ok":
                                   return _U.replace([["lfHist"
@@ -333,22 +372,22 @@ Elm.Main.make = function (_elm) {
                                                     ,["refMsg",$Maybe.Nothing]],
                                     model);}
                                _U.badCase($moduleName,
-                               "between lines 129 and 133");
+                               "between lines 138 and 143");
                             }();
                          }();}
                     _U.badCase($moduleName,
-                    "between lines 123 and 133");
+                    "between lines 131 and 143");
                  }();
               }();
             case "EditEnv":
             return function () {
                  var newEnv = function () {
-                    var _v38 = $Utils.parseEnv(action._0);
-                    switch (_v38.ctor)
+                    var _v40 = $Utils.parseEnv(action._0);
+                    switch (_v40.ctor)
                     {case "Err": return model.env;
-                       case "Ok": return _v38._0;}
+                       case "Ok": return _v40._0;}
                     _U.badCase($moduleName,
-                    "between lines 84 and 87");
+                    "between lines 87 and 90");
                  }();
                  return _U.replace([["env"
                                     ,newEnv]
@@ -358,13 +397,13 @@ Elm.Main.make = function (_elm) {
             case "EditInput":
             return function () {
                  var newInp = function () {
-                    var _v41 = $Utils.parseInp(action._0);
-                    switch (_v41.ctor)
+                    var _v43 = $Utils.parseInp(action._0);
+                    switch (_v43.ctor)
                     {case "Err":
                        return model.startStack;
-                       case "Ok": return _v41._0;}
+                       case "Ok": return _v43._0;}
                     _U.badCase($moduleName,
-                    "between lines 91 and 94");
+                    "between lines 94 and 97");
                  }();
                  return _U.replace([["startStack"
                                     ,newInp]
@@ -398,29 +437,44 @@ Elm.Main.make = function (_elm) {
                  },
                  newm.lfHist)));
                  return function () {
-                    var _v44 = A3($PLA.$eval,
+                    var _v46 = A3($PLA.$eval,
                     c,
                     newm.env,
                     newm.startStack);
-                    switch (_v44.ctor)
+                    switch (_v46.ctor)
                     {case "Err":
                        return _U.replace([["refMsg"
-                                          ,$Maybe.Just(_v44._0)]],
+                                          ,$Maybe.Just(_v46._0)]],
                          newm);
                        case "Ok":
                        return _U.replace([["refMsg"
                                           ,$Maybe.Nothing]],
                          newm);}
                     _U.badCase($moduleName,
-                    "between lines 117 and 121");
+                    "between lines 120 and 124");
                  }();
+              }();
+            case "ToggleInstr":
+            return function () {
+                 var _v49 = model.instructions;
+                 switch (_v49.ctor)
+                 {case "Just":
+                    return _U.replace([["instructions"
+                                       ,$Maybe.Nothing]],
+                      model);
+                    case "Nothing":
+                    return _U.replace([["instructions"
+                                       ,$Maybe.Just($Instructions.instructions)]],
+                      model);}
+                 _U.badCase($moduleName,
+                 "between lines 125 and 129");
               }();
             case "UpdateQuery":
             return _U.replace([["query"
                                ,action._0]],
               model);}
          _U.badCase($moduleName,
-         "between lines 77 and 133");
+         "between lines 80 and 143");
       }();
    });
    var model = A3($Signal.foldp,
@@ -436,17 +490,19 @@ Elm.Main.make = function (_elm) {
              ,formula: a
              ,highlight: c};
    });
-   var Model = F8(function (a,
+   var Model = F9(function (a,
    b,
    c,
    d,
    e,
    f,
    g,
-   h) {
+   h,
+   i) {
       return {_: {}
              ,env: d
              ,envBox: c
+             ,instructions: i
              ,lfHist: b
              ,parseMsg: g
              ,query: a
@@ -466,13 +522,16 @@ Elm.Main.make = function (_elm) {
                       ,AccentFormula: AccentFormula
                       ,CompileQuery: CompileQuery
                       ,ToggleFormula: ToggleFormula
+                      ,ToggleInstr: ToggleInstr
                       ,update: update
                       ,view: view
+                      ,dispInstr: dispInstr
                       ,dispLFs: dispLFs
                       ,queryEntry: queryEntry
                       ,dispStacks: dispStacks
                       ,dispStack: dispStack
                       ,inpEntry: inpEntry
+                      ,infoFooter: infoFooter
                       ,main: main
                       ,model: model
                       ,updates: updates};

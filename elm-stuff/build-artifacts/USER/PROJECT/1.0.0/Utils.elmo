@@ -21,7 +21,8 @@ Elm.Utils.make = function (_elm) {
    $Parser$Char = Elm.Parser.Char.make(_elm),
    $Parser$Number = Elm.Parser.Number.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
    var evals = F3(function (lfs,
    env,
    s) {
@@ -74,7 +75,11 @@ Elm.Utils.make = function (_elm) {
    $Array.fromList,
    $Parser.some($Parser$Number.digit));
    var parseInp = $Parser.parse(inpP);
-   var emptyEnv = $Basics.always($Result.Err("-666"));
+   var emptyEnv = function (v) {
+      return $Result.Err(A2($Basics._op["++"],
+      $String.fromChar(v),
+      "?"));
+   };
    var envP = function () {
       var addVar = function (env) {
          return A2($Parser.and,
@@ -100,6 +105,18 @@ Elm.Utils.make = function (_elm) {
          return $List.head($List.reverse($));
       })(A2($Parser.parseAll,envP,s));
    };
+   var is44 = function (code) {
+      return _U.eq(code,
+      44) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
+   };
+   var onSlash = function (message) {
+      return A3($Html$Events.on,
+      "keydown",
+      A2($Json$Decode.customDecoder,
+      $Html$Events.keyCode,
+      is44),
+      $Basics.always(message));
+   };
    var is13 = function (code) {
       return _U.eq(code,
       13) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
@@ -122,6 +139,8 @@ Elm.Utils.make = function (_elm) {
                        ,flip2: flip2
                        ,onEnter: onEnter
                        ,is13: is13
+                       ,onSlash: onSlash
+                       ,is44: is44
                        ,emptyEnv: emptyEnv
                        ,envP: envP
                        ,parseEnv: parseEnv

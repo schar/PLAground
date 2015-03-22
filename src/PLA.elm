@@ -3,7 +3,7 @@ module PLA where
 -- Basic Data
 import List
 import Array as Ar
-import String (fromChar, filter, toList, fromList, cons, join)
+import String (fromChar, filter, toList, fromList, cons, join, append)
 import Result (..)
 
 -- Parser Library
@@ -42,8 +42,9 @@ showFormula x =
   case x of
     Pred a b ->
       "[.Pred " ++ fromChar a ++ " " ++ showTerm b ++ " ]"
-    Rel a bs ->
-      "[.Rel " ++ a ++ " " ++ "{(" ++ join "," (List.map showTerm bs) ++ ")} ]"
+    Rel a (b::bs) ->
+      "[.Rel " ++ a ++ " [.Tup " ++
+        List.foldl (\x y -> y ++ " " ++ showTerm x) (showTerm b) bs ++ " ] ]"
     Neg f ->
       "[.Neg " ++ showFormula f ++ " ]"
     Exists v f ->
@@ -130,10 +131,10 @@ relDict relId =
 -- Resolve variables, constants, and pronouns
 evalTerm : Term -> Env -> Stack -> Result String Int
 evalTerm t e s = case t of
-  Con a -> Ok a
+  Con c -> Ok c
   Var v -> e v
-  Pro n ->
-    fromMaybe ("pro" ++ toString n ++ "?") <| Ar.get (Ar.length s - n - 1) s
+  Pro p ->
+    fromMaybe ("p" ++ toString p ++ "?") <| Ar.get (Ar.length s - p - 1) s
 
 -- Interpretation function
 eval : Formula -> Env -> Prop

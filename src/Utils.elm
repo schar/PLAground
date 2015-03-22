@@ -12,6 +12,7 @@ import Parser.Char (lower, parenthesized, bracketed)
 import Parser.Number (digit)
 import List
 import Array as Ar
+import String (fromChar)
 
 import PLA (..)
 
@@ -25,9 +26,17 @@ is13 : Int -> Result String ()
 is13 code =
   if code == 13 then Ok () else Err "not the right key code"
 
+onSlash : Sig.Message -> Attribute
+onSlash message =
+  on "keydown" (Json.customDecoder keyCode is44) (always message)
+
+is44 : Int -> Result String ()
+is44 code =
+  if code == 44 then Ok () else Err "not the right key code"
+
 -- empty assignment function
 emptyEnv : Env
-emptyEnv = always <| Err "-666"
+emptyEnv v = Err <| fromChar v ++ "?"
 
 -- assignment function parser
 envP : Parser Env

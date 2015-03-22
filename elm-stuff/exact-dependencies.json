@@ -2,6 +2,7 @@
     "TheSeamau5/elm-check": "2.0.3",
     "maxsnew/lazy": "1.0.0",
     "evancz/virtual-dom": "1.2.2",
+    "evancz/elm-markdown": "1.1.3",
     "TheSeamau5/elm-random-extra": "1.1.0",
     "Dandandan/parser": "5.0.1",
     "evancz/elm-html": "2.0.0",

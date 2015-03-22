@@ -1,0 +1,21 @@
+Elm.Instructions = Elm.Instructions || {};
+Elm.Instructions.make = function (_elm) {
+   "use strict";
+   _elm.Instructions = _elm.Instructions || {};
+   if (_elm.Instructions.values)
+   return _elm.Instructions.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Instructions",
+   $Html = Elm.Html.make(_elm),
+   $Markdown = Elm.Markdown.make(_elm);
+   var inst = "\n  # User Interface\n  \n  * At the prompt, type an expression of FOL and then press Enter.\n  * If your expression is well-formed, it will be evaluated at the current\n    input stack (empty by default), and the resulting set of outputs will\n    appear below.\n  * Subsequent queries will be dynamically conjoined to those that have\n    already been evaluated.\n  * You can change the initial context at any time by placing individuals on \n    the input stack (e.g. [1], [423], etc.). You\'ll see the effects percolate\n    through the discourse history immediately.\n  * You can also mute previous queries either to undo them, or to see how the\n    rest of the discourse would have played out, had those expressions not\n    been uttered. Mute a query by clicking on the x next to its parsetree in\n    the expression record.\n  * If your query expression is not well-formed or refers to a\n    variable/pronoun beyond the reach of the current context, you will see a\n    terse error message, either \'*\' (parse error), \'x?\' (where \'x\' is a free\n    variable in your expr), or \'pk?\' (where \'k\' is an index greater than the\n    size of the current stack).\n\n\n  # Technical Reference\n\n  ## Domain and Lexicon\n\n  * Formulas are evaluated against a domain with four individuals D :=\n    {1,2,3,4}, and an empty assignment function g := λv. Error.\n  * There are two predicates, \'e\' and \'o\', and one relation \'eq\':\n      + ⟦e⟧ := λx. x ∈ {2,4}\n      + ⟦o⟧ := λx. x ∈ {1,3}\n      + ⟦eq⟧ := λx.λy. (x,y) ∈ {(1,1), (2,2), (3,3), (4,4)}\n\n\n  ## Predicate Logic with Anaphora ([Dekker 1994](http://elanguage.net/journals/salt/article/view/4.79))\n\n  * Terms are evaluated wrt an assignment (mostly implicit in the defs below)\n    and incoming contexts. For v ∈ VAR, c ∈ CON, k ∈ N:\n      + ⟦v⟧[g](#) := λs. g(v)\n      + ⟦c⟧ := λs. c, for c = 1, 2, 3, 4\n      + ⟦pk⟧ := λs. s_k, where s = [s_n,...,s_k,...,s_1, s_0]\n  * Formulas are evaluted at the same parameters. Again the assignments are\n    left implicit, except where necessary:\n      + ⟦R(t1,...,tn)⟧ := λs. {s | ⟦R⟧(⟦t1⟧s)...(⟦tn⟧s)}\n      + ⟦~Φ⟧ := λs. {s | ⟦Φ⟧(s) ≠ ∅}\n      + ⟦(Φ & Ψ)⟧ := λs. {s\'\' | s\' ∈ ⟦Φ⟧(s), s\'\' ∈ ⟦Ψ⟧(s\')}\n      + ⟦Ex Φ⟧ := λs. {s\' • d | d ∈ D, s\' ∈ ⟦Φ⟧[x↦d](#)(s)}\n  ";
+   var instructions = $Markdown.toHtml(inst);
+   _elm.Instructions.values = {_op: _op
+                              ,instructions: instructions
+                              ,inst: inst};
+   return _elm.Instructions.values;
+};

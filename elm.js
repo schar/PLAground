@@ -765,33 +765,6 @@ Elm.Color.make = function (_elm) {
                        ,darkCharcoal: darkCharcoal};
    return _elm.Color.values;
 };
-Elm.Debug = Elm.Debug || {};
-Elm.Debug.make = function (_elm) {
-   "use strict";
-   _elm.Debug = _elm.Debug || {};
-   if (_elm.Debug.values)
-   return _elm.Debug.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   _P = _N.Ports.make(_elm),
-   $moduleName = "Debug",
-   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
-   $Native$Debug = Elm.Native.Debug.make(_elm);
-   var trace = $Native$Debug.tracePath;
-   var watchSummary = $Native$Debug.watchSummary;
-   var watch = $Native$Debug.watch;
-   var crash = $Native$Debug.crash;
-   var log = $Native$Debug.log;
-   _elm.Debug.values = {_op: _op
-                       ,log: log
-                       ,crash: crash
-                       ,watch: watch
-                       ,watchSummary: watchSummary
-                       ,trace: trace};
-   return _elm.Debug.values;
-};
 Elm.Dict = Elm.Dict || {};
 Elm.Dict.make = function (_elm) {
    "use strict";
@@ -1777,353 +1750,6 @@ Elm.Dict.make = function (_elm) {
                       ,toList: toList
                       ,fromList: fromList};
    return _elm.Dict.values;
-};
-Elm.Graphics = Elm.Graphics || {};
-Elm.Graphics.Collage = Elm.Graphics.Collage || {};
-Elm.Graphics.Collage.make = function (_elm) {
-   "use strict";
-   _elm.Graphics = _elm.Graphics || {};
-   _elm.Graphics.Collage = _elm.Graphics.Collage || {};
-   if (_elm.Graphics.Collage.values)
-   return _elm.Graphics.Collage.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   _P = _N.Ports.make(_elm),
-   $moduleName = "Graphics.Collage",
-   $Basics = Elm.Basics.make(_elm),
-   $Color = Elm.Color.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Native$Graphics$Collage = Elm.Native.Graphics.Collage.make(_elm),
-   $Transform2D = Elm.Transform2D.make(_elm);
-   var ngon = F2(function (n,r) {
-      return function () {
-         var m = $Basics.toFloat(n);
-         var t = 2 * $Basics.pi / m;
-         var f = function (i) {
-            return {ctor: "_Tuple2"
-                   ,_0: r * $Basics.cos(t * i)
-                   ,_1: r * $Basics.sin(t * i)};
-         };
-         return A2($List.map,
-         f,
-         _L.range(0,m - 1));
-      }();
-   });
-   var oval = F2(function (w,h) {
-      return function () {
-         var hh = h / 2;
-         var hw = w / 2;
-         var n = 50;
-         var t = 2 * $Basics.pi / n;
-         var f = function (i) {
-            return {ctor: "_Tuple2"
-                   ,_0: hw * $Basics.cos(t * i)
-                   ,_1: hh * $Basics.sin(t * i)};
-         };
-         return A2($List.map,
-         f,
-         _L.range(0,n - 1));
-      }();
-   });
-   var circle = function (r) {
-      return A2(oval,2 * r,2 * r);
-   };
-   var rect = F2(function (w,h) {
-      return function () {
-         var hh = h / 2;
-         var hw = w / 2;
-         return _L.fromArray([{ctor: "_Tuple2"
-                              ,_0: 0 - hw
-                              ,_1: 0 - hh}
-                             ,{ctor: "_Tuple2"
-                              ,_0: 0 - hw
-                              ,_1: hh}
-                             ,{ctor: "_Tuple2",_0: hw,_1: hh}
-                             ,{ctor: "_Tuple2"
-                              ,_0: hw
-                              ,_1: 0 - hh}]);
-      }();
-   });
-   var square = function (n) {
-      return A2(rect,n,n);
-   };
-   var polygon = function (points) {
-      return points;
-   };
-   var segment = F2(function (p1,
-   p2) {
-      return _L.fromArray([p1,p2]);
-   });
-   var path = function (ps) {
-      return ps;
-   };
-   var collage = $Native$Graphics$Collage.collage;
-   var alpha = F2(function (a,f) {
-      return _U.replace([["alpha"
-                         ,a]],
-      f);
-   });
-   var rotate = F2(function (t,f) {
-      return _U.replace([["theta"
-                         ,f.theta + t]],
-      f);
-   });
-   var scale = F2(function (s,f) {
-      return _U.replace([["scale"
-                         ,f.scale * s]],
-      f);
-   });
-   var moveY = F2(function (y,f) {
-      return _U.replace([["y"
-                         ,f.y + y]],
-      f);
-   });
-   var moveX = F2(function (x,f) {
-      return _U.replace([["x"
-                         ,f.x + x]],
-      f);
-   });
-   var move = F2(function (_v0,f) {
-      return function () {
-         switch (_v0.ctor)
-         {case "_Tuple2":
-            return _U.replace([["x"
-                               ,f.x + _v0._0]
-                              ,["y",f.y + _v0._1]],
-              f);}
-         _U.badCase($moduleName,
-         "on line 179, column 20 to 48");
-      }();
-   });
-   var form = function (f) {
-      return {_: {}
-             ,alpha: 1
-             ,form: f
-             ,scale: 1
-             ,theta: 0
-             ,x: 0
-             ,y: 0};
-   };
-   var Fill = function (a) {
-      return {ctor: "Fill",_0: a};
-   };
-   var Line = function (a) {
-      return {ctor: "Line",_0: a};
-   };
-   var FGroup = F2(function (a,b) {
-      return {ctor: "FGroup"
-             ,_0: a
-             ,_1: b};
-   });
-   var group = function (fs) {
-      return form(A2(FGroup,
-      $Transform2D.identity,
-      fs));
-   };
-   var groupTransform = F2(function (matrix,
-   fs) {
-      return form(A2(FGroup,
-      matrix,
-      fs));
-   });
-   var FElement = function (a) {
-      return {ctor: "FElement"
-             ,_0: a};
-   };
-   var toForm = function (e) {
-      return form(FElement(e));
-   };
-   var FImage = F4(function (a,
-   b,
-   c,
-   d) {
-      return {ctor: "FImage"
-             ,_0: a
-             ,_1: b
-             ,_2: c
-             ,_3: d};
-   });
-   var sprite = F4(function (w,
-   h,
-   pos,
-   src) {
-      return form(A4(FImage,
-      w,
-      h,
-      pos,
-      src));
-   });
-   var FShape = F2(function (a,b) {
-      return {ctor: "FShape"
-             ,_0: a
-             ,_1: b};
-   });
-   var fill = F2(function (style,
-   shape) {
-      return form(A2(FShape,
-      Fill(style),
-      shape));
-   });
-   var outlined = F2(function (style,
-   shape) {
-      return form(A2(FShape,
-      Line(style),
-      shape));
-   });
-   var FPath = F2(function (a,b) {
-      return {ctor: "FPath"
-             ,_0: a
-             ,_1: b};
-   });
-   var traced = F2(function (style,
-   path) {
-      return form(A2(FPath,
-      style,
-      path));
-   });
-   var LineStyle = F6(function (a,
-   b,
-   c,
-   d,
-   e,
-   f) {
-      return {_: {}
-             ,cap: c
-             ,color: a
-             ,dashOffset: f
-             ,dashing: e
-             ,join: d
-             ,width: b};
-   });
-   var Clipped = {ctor: "Clipped"};
-   var Sharp = function (a) {
-      return {ctor: "Sharp",_0: a};
-   };
-   var Smooth = {ctor: "Smooth"};
-   var Padded = {ctor: "Padded"};
-   var Round = {ctor: "Round"};
-   var Flat = {ctor: "Flat"};
-   var defaultLine = {_: {}
-                     ,cap: Flat
-                     ,color: $Color.black
-                     ,dashOffset: 0
-                     ,dashing: _L.fromArray([])
-                     ,join: Sharp(10)
-                     ,width: 1};
-   var solid = function (clr) {
-      return _U.replace([["color"
-                         ,clr]],
-      defaultLine);
-   };
-   var dashed = function (clr) {
-      return _U.replace([["color"
-                         ,clr]
-                        ,["dashing"
-                         ,_L.fromArray([8,4])]],
-      defaultLine);
-   };
-   var dotted = function (clr) {
-      return _U.replace([["color"
-                         ,clr]
-                        ,["dashing"
-                         ,_L.fromArray([3,3])]],
-      defaultLine);
-   };
-   var Grad = function (a) {
-      return {ctor: "Grad",_0: a};
-   };
-   var gradient = F2(function (grad,
-   shape) {
-      return A2(fill,
-      Grad(grad),
-      shape);
-   });
-   var Texture = function (a) {
-      return {ctor: "Texture"
-             ,_0: a};
-   };
-   var textured = F2(function (src,
-   shape) {
-      return A2(fill,
-      Texture(src),
-      shape);
-   });
-   var Solid = function (a) {
-      return {ctor: "Solid",_0: a};
-   };
-   var filled = F2(function (color,
-   shape) {
-      return A2(fill,
-      Solid(color),
-      shape);
-   });
-   var Form = F6(function (a,
-   b,
-   c,
-   d,
-   e,
-   f) {
-      return {_: {}
-             ,alpha: e
-             ,form: f
-             ,scale: b
-             ,theta: a
-             ,x: c
-             ,y: d};
-   });
-   _elm.Graphics.Collage.values = {_op: _op
-                                  ,Form: Form
-                                  ,Solid: Solid
-                                  ,Texture: Texture
-                                  ,Grad: Grad
-                                  ,Flat: Flat
-                                  ,Round: Round
-                                  ,Padded: Padded
-                                  ,Smooth: Smooth
-                                  ,Sharp: Sharp
-                                  ,Clipped: Clipped
-                                  ,LineStyle: LineStyle
-                                  ,defaultLine: defaultLine
-                                  ,solid: solid
-                                  ,dashed: dashed
-                                  ,dotted: dotted
-                                  ,FPath: FPath
-                                  ,FShape: FShape
-                                  ,FImage: FImage
-                                  ,FElement: FElement
-                                  ,FGroup: FGroup
-                                  ,Line: Line
-                                  ,Fill: Fill
-                                  ,form: form
-                                  ,fill: fill
-                                  ,filled: filled
-                                  ,textured: textured
-                                  ,gradient: gradient
-                                  ,outlined: outlined
-                                  ,traced: traced
-                                  ,sprite: sprite
-                                  ,toForm: toForm
-                                  ,group: group
-                                  ,groupTransform: groupTransform
-                                  ,move: move
-                                  ,moveX: moveX
-                                  ,moveY: moveY
-                                  ,scale: scale
-                                  ,rotate: rotate
-                                  ,alpha: alpha
-                                  ,collage: collage
-                                  ,path: path
-                                  ,segment: segment
-                                  ,polygon: polygon
-                                  ,rect: rect
-                                  ,square: square
-                                  ,oval: oval
-                                  ,circle: circle
-                                  ,ngon: ngon};
-   return _elm.Graphics.Collage.values;
 };
 Elm.Graphics = Elm.Graphics || {};
 Elm.Graphics.Element = Elm.Graphics.Element || {};
@@ -3633,6 +3259,27 @@ Elm.Html.Lazy.make = function (_elm) {
                            ,lazy3: lazy3};
    return _elm.Html.Lazy.values;
 };
+Elm.Instructions = Elm.Instructions || {};
+Elm.Instructions.make = function (_elm) {
+   "use strict";
+   _elm.Instructions = _elm.Instructions || {};
+   if (_elm.Instructions.values)
+   return _elm.Instructions.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Instructions",
+   $Html = Elm.Html.make(_elm),
+   $Markdown = Elm.Markdown.make(_elm);
+   var inst = "\n  # User Interface\n  \n  * At the prompt, type an expression of FOL and then press Enter.\n  * If your expression is well-formed, it will be evaluated at the current\n    input stack (empty by default), and the resulting set of outputs will\n    appear below.\n  * Subsequent queries will be dynamically conjoined to those that have\n    already been evaluated.\n  * You can change the initial context at any time by placing individuals on \n    the input stack (e.g. [1], [423], etc.). You\'ll see the effects percolate\n    through the discourse history immediately.\n  * You can also mute previous queries either to undo them, or to see how the\n    rest of the discourse would have played out, had those expressions not\n    been uttered. Mute a query by clicking on the x next to its parsetree in\n    the expression record.\n  * If your query expression is not well-formed or refers to a\n    variable/pronoun beyond the reach of the current context, you will see a\n    terse error message, either \'*\' (parse error), \'x?\' (where \'x\' is a free\n    variable in your expr), or \'pk?\' (where \'k\' is an index greater than the\n    size of the current stack).\n\n\n  # Technical Reference\n\n  ## Domain and Lexicon\n\n  * Formulas are evaluated against a domain with four individuals D :=\n    {1,2,3,4}, and an empty assignment function g := λv. Error.\n  * There are two predicates, \'e\' and \'o\', and one relation \'eq\':\n      + ⟦e⟧ := λx. x ∈ {2,4}\n      + ⟦o⟧ := λx. x ∈ {1,3}\n      + ⟦eq⟧ := λx.λy. (x,y) ∈ {(1,1), (2,2), (3,3), (4,4)}\n\n\n  ## Predicate Logic with Anaphora ([Dekker 1994](http://elanguage.net/journals/salt/article/view/4.79))\n\n  * Terms are evaluated wrt an assignment (mostly implicit in the defs below)\n    and incoming contexts. For v ∈ VAR, c ∈ CON, k ∈ N:\n      + ⟦v⟧[g](#) := λs. g(v)\n      + ⟦c⟧ := λs. c, for c = 1, 2, 3, 4\n      + ⟦pk⟧ := λs. s_k, where s = [s_n,...,s_k,...,s_1, s_0]\n  * Formulas are evaluted at the same parameters. Again the assignments are\n    left implicit, except where necessary:\n      + ⟦R(t1,...,tn)⟧ := λs. {s | ⟦R⟧(⟦t1⟧s)...(⟦tn⟧s)}\n      + ⟦~Φ⟧ := λs. {s | ⟦Φ⟧(s) ≠ ∅}\n      + ⟦(Φ & Ψ)⟧ := λs. {s\'\' | s\' ∈ ⟦Φ⟧(s), s\'\' ∈ ⟦Ψ⟧(s\')}\n      + ⟦Ex Φ⟧ := λs. {s\' • d | d ∈ D, s\' ∈ ⟦Φ⟧[x↦d](#)(s)}\n  ";
+   var instructions = $Markdown.toHtml(inst);
+   _elm.Instructions.values = {_op: _op
+                              ,instructions: instructions
+                              ,inst: inst};
+   return _elm.Instructions.values;
+};
 Elm.Json = Elm.Json || {};
 Elm.Json.Decode = Elm.Json.Decode || {};
 Elm.Json.Decode.make = function (_elm) {
@@ -4173,6 +3820,7 @@ Elm.Main.make = function (_elm) {
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $Html$Lazy = Elm.Html.Lazy.make(_elm),
+   $Instructions = Elm.Instructions.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $PLA = Elm.PLA.make(_elm),
@@ -4184,6 +3832,7 @@ Elm.Main.make = function (_elm) {
          return $Html.text($Basics.toString($));
       })($Array.toList(s)));
    };
+   var ToggleInstr = {ctor: "ToggleInstr"};
    var ToggleFormula = function (a) {
       return {ctor: "ToggleFormula"
              ,_0: a};
@@ -4209,11 +3858,36 @@ Elm.Main.make = function (_elm) {
    };
    var NoOp = {ctor: "NoOp"};
    var updates = $Signal.channel(NoOp);
+   var dispInstr = function (instr) {
+      return function () {
+         switch (instr.ctor)
+         {case "Just":
+            return A2($Html.div,
+              _L.fromArray([$Html$Attributes.$class("instructions")]),
+              _L.fromArray([A2($Html.div,
+                           _L.fromArray([$Html$Attributes.$class("instructions-close")]),
+                           _L.fromArray([A2($Html.a,
+                           _L.fromArray([$Html$Attributes.href("#")
+                                        ,$Html$Events.onClick(A2($Signal.send,
+                                        updates,
+                                        ToggleInstr))]),
+                           _L.fromArray([$Html.text("Close")]))]))
+                           ,A2($Html.div,
+                           _L.fromArray([$Html$Attributes.$class("instructions-content")]),
+                           _L.fromArray([instr._0]))]));
+            case "Nothing":
+            return A2($Html.div,
+              _L.fromArray([]),
+              _L.fromArray([]));}
+         _U.badCase($moduleName,
+         "between lines 169 and 181");
+      }();
+   };
    var dispLFs = F2(function (msg,
    hist) {
       return msg ? A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("parse-msg")]),
-      _L.fromArray([$Html.text("FAIL")])) : $Html.div(_L.fromArray([$Html$Attributes.$class("lfs")]))($Basics.fst(A3($Utils.flip2,
+      _L.fromArray([$Html.text("*")])) : $Html.div(_L.fromArray([$Html$Attributes.$class("lfs")]))($Basics.fst(A3($Utils.flip2,
       $List.foldl,
       {ctor: "_Tuple2"
       ,_0: _L.fromArray([])
@@ -4221,11 +3895,11 @@ Elm.Main.make = function (_elm) {
            ,_0: Math.pow(0.8,
            $Basics.toFloat($List.length(hist) - 1))
            ,_1: 0}},
-      hist)(F2(function (lf,_v0) {
+      hist)(F2(function (lf,_v2) {
          return function () {
-            switch (_v0.ctor)
+            switch (_v2.ctor)
             {case "_Tuple2":
-               switch (_v0._1.ctor)
+               switch (_v2._1.ctor)
                  {case "_Tuple2":
                     return {ctor: "_Tuple2"
                            ,_0: A2($List._op["::"],
@@ -4241,28 +3915,28 @@ Elm.Main.make = function (_elm) {
                                                                                   ,_1: lf.highlight}]))
                                         ,$Html$Attributes.style(_L.fromArray([{ctor: "_Tuple2"
                                                                               ,_0: "opacity"
-                                                                              ,_1: $Basics.toString(lf.active ? _v0._1._0 : 1)}]))]),
+                                                                              ,_1: $Basics.toString(lf.active ? _v2._1._0 : 1)}]))]),
                            _L.fromArray([A2($Html.input,
                                         _L.fromArray([$Html$Attributes.$class("lf-toggle")
                                                      ,$Html$Attributes.type$("checkbox")
                                                      ,$Html$Attributes.checked($Basics.not(lf.active))
-                                                     ,$Html$Events.onClick($Signal.send(updates)(ToggleFormula(_v0._1._1)))]),
+                                                     ,$Html$Events.onClick($Signal.send(updates)(ToggleFormula(_v2._1._1)))]),
                                         _L.fromArray([]))
                                         ,$Html.text($PLA.showFormula(lf.formula))])),
-                           _v0._0)
+                           _v2._0)
                            ,_1: {ctor: "_Tuple2"
-                                ,_0: 1.25 * _v0._1._0
-                                ,_1: _v0._1._1 + 1}};}
+                                ,_0: 1.25 * _v2._1._0
+                                ,_1: _v2._1._1 + 1}};}
                  break;}
             _U.badCase($moduleName,
-            "between lines 167 and 186");
+            "between lines 194 and 213");
          }();
       }))));
    });
    var queryEntry = function (query) {
       return A2($Html.input,
       _L.fromArray([$Html$Attributes.id("query")
-                   ,$Html$Attributes.placeholder("Enter expression")
+                   ,$Html$Attributes.placeholder("Enter expression, e.g. Ex e(x)")
                    ,$Html$Attributes.value(query)
                    ,$Html$Attributes.autofocus(true)
                    ,A3($Html$Events.on,
@@ -4276,54 +3950,54 @@ Elm.Main.make = function (_elm) {
                    CompileQuery))]),
       _L.fromArray([]));
    };
-   var dispStacks = F3(function (_v6,
+   var dispStacks = F3(function (_v8,
    e,
-   _v7) {
+   _v9) {
       return function () {
-         switch (_v7.ctor)
+         switch (_v9.ctor)
          {case "_Tuple2":
             return function () {
-                 switch (_v6.ctor)
+                 switch (_v8.ctor)
                  {case "_Tuple2":
                     return function () {
-                         switch (_v6._0.ctor)
+                         switch (_v8._0.ctor)
                          {case "Just":
                             return A2($Html.div,
                               _L.fromArray([$Html$Attributes.$class("parse-msg")]),
-                              _L.fromArray([$Html.text(_v6._0._0)]));
+                              _L.fromArray([$Html.text(_v8._0._0)]));
                             case "Nothing":
                             return function () {
-                                 var _v16 = A2($List.filter,
+                                 var _v18 = A2($List.filter,
                                  function (_) {
                                     return _.active;
                                  },
-                                 _v6._1);
-                                 switch (_v16.ctor)
+                                 _v8._1);
+                                 switch (_v18.ctor)
                                  {case "[]": return A2($Html.div,
                                       _L.fromArray([$Html$Attributes.id("stack-hist")]),
-                                      _L.fromArray([_v7._1]));}
+                                      _L.fromArray([_v9._1]));}
                                  return function () {
-                                    var _v17 = A3($Utils.evals,
+                                    var _v19 = A3($Utils.evals,
                                     $List.map(function (_) {
                                        return _.formula;
                                     })(A2($List.filter,
                                     function (_) {
                                        return _.active;
                                     },
-                                    _v6._1)),
+                                    _v8._1)),
                                     e,
-                                    _v7._0);
-                                    switch (_v17.ctor)
+                                    _v9._0);
+                                    switch (_v19.ctor)
                                     {case "Err":
                                        return A2($Html.div,
                                          _L.fromArray([$Html$Attributes.id("stack-hist")]),
                                          _L.fromArray([$Html.text("this is impossible")]));
                                        case "Ok":
                                        return $Html.div(_L.fromArray([$Html$Attributes.id("stack-hist")]))(A2($List._op["::"],
-                                         _v7._1,
+                                         _v9._1,
                                          A2($Basics.flip,
                                          $List.indexedMap,
-                                         _v17._0)(F2(function (n,sl) {
+                                         _v19._0)(F2(function (n,sl) {
                                             return $Html.div(_L.fromArray([$Html$Attributes.$class("outputs")
                                                                           ,$Html$Events.onMouseOver($Signal.send(updates)(A2(AccentFormula,
                                                                           n,
@@ -4340,17 +4014,17 @@ Elm.Main.make = function (_elm) {
                                             }());
                                          }))));}
                                     _U.badCase($moduleName,
-                                    "between lines 209 and 226");
+                                    "between lines 236 and 253");
                                  }();
                               }();}
                          _U.badCase($moduleName,
-                         "between lines 203 and 226");
+                         "between lines 230 and 253");
                       }();}
                  _U.badCase($moduleName,
-                 "between lines 203 and 226");
+                 "between lines 230 and 253");
               }();}
          _U.badCase($moduleName,
-         "between lines 203 and 226");
+         "between lines 230 and 253");
       }();
    });
    var inpEntry = function (inp) {
@@ -4367,14 +4041,23 @@ Elm.Main.make = function (_elm) {
                    })]),
       _L.fromArray([]))]));
    };
+   var infoFooter = A2($Html.footer,
+   _L.fromArray([$Html$Attributes.id("instr-footer")]),
+   _L.fromArray([A2($Html.a,
+   _L.fromArray([$Html$Attributes.href("#")
+                ,$Html$Events.onClick(A2($Signal.send,
+                updates,
+                ToggleInstr))]),
+   _L.fromArray([$Html.text("Confused?")]))]));
    var view = function (model) {
       return A2($Html.div,
-      _L.fromArray([$Html$Attributes.$class("base-bg base-copy")]),
-      _L.fromArray([A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("page-wrap")]),
       _L.fromArray([A2($Html.div,
       _L.fromArray([$Html$Attributes.$class("column-main")]),
-      _L.fromArray([A3($Html$Lazy.lazy2,
+      _L.fromArray([A2($Html$Lazy.lazy,
+                   dispInstr,
+                   model.instructions)
+                   ,A3($Html$Lazy.lazy2,
                    dispLFs,
                    model.parseMsg,
                    model.lfHist)
@@ -4397,25 +4080,25 @@ Elm.Main.make = function (_elm) {
                    ,_0: model.startStack
                    ,_1: A2($Html$Lazy.lazy,
                    inpEntry,
-                   model.startBox)})]))]))]));
+                   model.startBox)})
+                   ,infoFooter]))]));
    };
+   var defModel = {_: {}
+                  ,env: $Utils.emptyEnv
+                  ,envBox: "\n"
+                  ,instructions: $Maybe.Nothing
+                  ,lfHist: _L.fromArray([])
+                  ,parseMsg: false
+                  ,query: ""
+                  ,refMsg: $Maybe.Nothing
+                  ,startBox: ""
+                  ,startStack: $Array.empty};
    var defLF = function (form) {
       return {_: {}
              ,active: true
              ,formula: form
              ,highlight: false};
    };
-   var defModel = {_: {}
-                  ,env: $Utils.emptyEnv
-                  ,envBox: "\n"
-                  ,lfHist: _L.fromArray([defLF($PLA.Exists($PLA.Var(_U.chr("x")))(A2($PLA.Pred,
-                  _U.chr("e"),
-                  $PLA.Var(_U.chr("x")))))])
-                  ,parseMsg: false
-                  ,query: "Ex e(x)"
-                  ,refMsg: $Maybe.Nothing
-                  ,startBox: ""
-                  ,startStack: $Array.empty};
    var update = F2(function (action,
    model) {
       return function () {
@@ -4428,24 +4111,24 @@ Elm.Main.make = function (_elm) {
                  ,_0: _L.fromArray([])
                  ,_1: 0},
                  model.lfHist)(F2(function (lf,
-                 _v28) {
+                 _v30) {
                     return function () {
-                       switch (_v28.ctor)
+                       switch (_v30.ctor)
                        {case "_Tuple2":
                           return lf.active ? {ctor: "_Tuple2"
                                              ,_0: A2($Basics._op["++"],
-                                             _v28._0,
-                                             _L.fromArray([_U.eq(_v28._1,
+                                             _v30._0,
+                                             _L.fromArray([_U.eq(_v30._1,
                                              action._0) ? _U.replace([["highlight"
                                                                       ,action._1]],
                                              lf) : lf]))
-                                             ,_1: _v28._1 + 1} : {ctor: "_Tuple2"
+                                             ,_1: _v30._1 + 1} : {ctor: "_Tuple2"
                                                                  ,_0: A2($Basics._op["++"],
-                                                                 _v28._0,
+                                                                 _v30._0,
                                                                  _L.fromArray([lf]))
-                                                                 ,_1: _v28._1};}
+                                                                 ,_1: _v30._1};}
                        _U.badCase($moduleName,
-                       "between lines 102 and 107");
+                       "between lines 105 and 110");
                     }();
                  })));
                  return _U.replace([["lfHist"
@@ -4459,7 +4142,8 @@ Elm.Main.make = function (_elm) {
                     switch (formula.ctor)
                     {case "Err":
                        return _U.replace([["parseMsg"
-                                          ,true]],
+                                          ,true]
+                                         ,["refMsg",$Maybe.Nothing]],
                          model);
                        case "Ok": return function () {
                             var c = $List.foldl1($Basics.flip($PLA.Conj))(A2($Basics._op["++"],
@@ -4472,14 +4156,16 @@ Elm.Main.make = function (_elm) {
                             model.lfHist)),
                             _L.fromArray([formula._0])));
                             return function () {
-                               var _v35 = A3($PLA.$eval,
+                               var _v37 = A3($PLA.$eval,
                                c,
                                model.env,
                                model.startStack);
-                               switch (_v35.ctor)
+                               switch (_v37.ctor)
                                {case "Err":
-                                  return _U.replace([["refMsg"
-                                                     ,$Maybe.Just(_v35._0)]],
+                                  return _U.replace([["parseMsg"
+                                                     ,false]
+                                                    ,["refMsg"
+                                                     ,$Maybe.Just(_v37._0)]],
                                     model);
                                   case "Ok":
                                   return _U.replace([["lfHist"
@@ -4490,22 +4176,22 @@ Elm.Main.make = function (_elm) {
                                                     ,["refMsg",$Maybe.Nothing]],
                                     model);}
                                _U.badCase($moduleName,
-                               "between lines 129 and 133");
+                               "between lines 138 and 143");
                             }();
                          }();}
                     _U.badCase($moduleName,
-                    "between lines 123 and 133");
+                    "between lines 131 and 143");
                  }();
               }();
             case "EditEnv":
             return function () {
                  var newEnv = function () {
-                    var _v38 = $Utils.parseEnv(action._0);
-                    switch (_v38.ctor)
+                    var _v40 = $Utils.parseEnv(action._0);
+                    switch (_v40.ctor)
                     {case "Err": return model.env;
-                       case "Ok": return _v38._0;}
+                       case "Ok": return _v40._0;}
                     _U.badCase($moduleName,
-                    "between lines 84 and 87");
+                    "between lines 87 and 90");
                  }();
                  return _U.replace([["env"
                                     ,newEnv]
@@ -4515,13 +4201,13 @@ Elm.Main.make = function (_elm) {
             case "EditInput":
             return function () {
                  var newInp = function () {
-                    var _v41 = $Utils.parseInp(action._0);
-                    switch (_v41.ctor)
+                    var _v43 = $Utils.parseInp(action._0);
+                    switch (_v43.ctor)
                     {case "Err":
                        return model.startStack;
-                       case "Ok": return _v41._0;}
+                       case "Ok": return _v43._0;}
                     _U.badCase($moduleName,
-                    "between lines 91 and 94");
+                    "between lines 94 and 97");
                  }();
                  return _U.replace([["startStack"
                                     ,newInp]
@@ -4555,29 +4241,44 @@ Elm.Main.make = function (_elm) {
                  },
                  newm.lfHist)));
                  return function () {
-                    var _v44 = A3($PLA.$eval,
+                    var _v46 = A3($PLA.$eval,
                     c,
                     newm.env,
                     newm.startStack);
-                    switch (_v44.ctor)
+                    switch (_v46.ctor)
                     {case "Err":
                        return _U.replace([["refMsg"
-                                          ,$Maybe.Just(_v44._0)]],
+                                          ,$Maybe.Just(_v46._0)]],
                          newm);
                        case "Ok":
                        return _U.replace([["refMsg"
                                           ,$Maybe.Nothing]],
                          newm);}
                     _U.badCase($moduleName,
-                    "between lines 117 and 121");
+                    "between lines 120 and 124");
                  }();
+              }();
+            case "ToggleInstr":
+            return function () {
+                 var _v49 = model.instructions;
+                 switch (_v49.ctor)
+                 {case "Just":
+                    return _U.replace([["instructions"
+                                       ,$Maybe.Nothing]],
+                      model);
+                    case "Nothing":
+                    return _U.replace([["instructions"
+                                       ,$Maybe.Just($Instructions.instructions)]],
+                      model);}
+                 _U.badCase($moduleName,
+                 "between lines 125 and 129");
               }();
             case "UpdateQuery":
             return _U.replace([["query"
                                ,action._0]],
               model);}
          _U.badCase($moduleName,
-         "between lines 77 and 133");
+         "between lines 80 and 143");
       }();
    });
    var model = A3($Signal.foldp,
@@ -4593,17 +4294,19 @@ Elm.Main.make = function (_elm) {
              ,formula: a
              ,highlight: c};
    });
-   var Model = F8(function (a,
+   var Model = F9(function (a,
    b,
    c,
    d,
    e,
    f,
    g,
-   h) {
+   h,
+   i) {
       return {_: {}
              ,env: d
              ,envBox: c
+             ,instructions: i
              ,lfHist: b
              ,parseMsg: g
              ,query: a
@@ -4623,17 +4326,71 @@ Elm.Main.make = function (_elm) {
                       ,AccentFormula: AccentFormula
                       ,CompileQuery: CompileQuery
                       ,ToggleFormula: ToggleFormula
+                      ,ToggleInstr: ToggleInstr
                       ,update: update
                       ,view: view
+                      ,dispInstr: dispInstr
                       ,dispLFs: dispLFs
                       ,queryEntry: queryEntry
                       ,dispStacks: dispStacks
                       ,dispStack: dispStack
                       ,inpEntry: inpEntry
+                      ,infoFooter: infoFooter
                       ,main: main
                       ,model: model
                       ,updates: updates};
    return _elm.Main.values;
+};
+Elm.Markdown = Elm.Markdown || {};
+Elm.Markdown.make = function (_elm) {
+   "use strict";
+   _elm.Markdown = _elm.Markdown || {};
+   if (_elm.Markdown.values)
+   return _elm.Markdown.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Markdown",
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Native$Markdown = Elm.Native.Markdown.make(_elm);
+   var toElementWith = $Native$Markdown.toElementWith;
+   var toHtmlWith = $Native$Markdown.toHtmlWith;
+   var defaultOptions = {_: {}
+                        ,githubFlavored: $Maybe.Just({_: {}
+                                                     ,breaks: false
+                                                     ,tables: false})
+                        ,sanitize: false
+                        ,smartypants: false};
+   var Options = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,githubFlavored: a
+             ,sanitize: b
+             ,smartypants: c};
+   });
+   var toElement = function (string) {
+      return A2($Native$Markdown.toElementWith,
+      defaultOptions,
+      string);
+   };
+   var toHtml = function (string) {
+      return A2($Native$Markdown.toHtmlWith,
+      defaultOptions,
+      string);
+   };
+   _elm.Markdown.values = {_op: _op
+                          ,toHtml: toHtml
+                          ,toElement: toElement
+                          ,Options: Options
+                          ,defaultOptions: defaultOptions
+                          ,toHtmlWith: toHtmlWith
+                          ,toElementWith: toElementWith};
+   return _elm.Markdown.values;
 };
 Elm.Maybe = Elm.Maybe || {};
 Elm.Maybe.make = function (_elm) {
@@ -5664,425 +5421,6 @@ Elm.Native.Debug.make = function(elm) {
         log: F2(log),
         watch: F2(watch),
         watchSummary:F3(watchSummary),
-    };
-};
-
-
-// setup
-Elm.Native = Elm.Native || {};
-Elm.Native.Graphics = Elm.Native.Graphics || {};
-Elm.Native.Graphics.Collage = Elm.Native.Graphics.Collage || {};
-
-// definition
-Elm.Native.Graphics.Collage.make = function(localRuntime) {
-    'use strict';
-
-    // attempt to short-circuit
-    localRuntime.Native = localRuntime.Native || {};
-    localRuntime.Native.Graphics = localRuntime.Native.Graphics || {};
-    localRuntime.Native.Graphics.Collage = localRuntime.Native.Graphics.Collage || {};
-    if ('values' in localRuntime.Native.Graphics.Collage) {
-        return localRuntime.Native.Graphics.Collage.values;
-    }
-
-    // okay, we cannot short-ciruit, so now we define everything
-    var Color = Elm.Native.Color.make(localRuntime);
-    var List = Elm.Native.List.make(localRuntime);
-    var Transform = Elm.Transform2D.make(localRuntime);
-
-    var Element = Elm.Graphics.Element.make(localRuntime);
-    var NativeElement = Elm.Native.Graphics.Element.make(localRuntime);
-
-
-    function trace(ctx, path) {
-        var points = List.toArray(path);
-        var i = points.length - 1;
-        if (i <= 0) {
-            return;
-        }
-        ctx.moveTo(points[i]._0, points[i]._1);
-        while (i--) {
-            ctx.lineTo(points[i]._0, points[i]._1);
-        }
-        if (path.closed) {
-            i = points.length - 1;
-            ctx.lineTo(points[i]._0, points[i]._1);
-        }
-    }
-
-    function line(ctx,style,path) {
-        (style.dashing.ctor === '[]')
-            ? trace(ctx, path)
-            : customLineHelp(ctx, style, path);
-        ctx.scale(1,-1);
-        ctx.stroke();
-    }
-
-    function customLineHelp(ctx, style, path) {
-        var points = List.toArray(path);
-        if (path.closed) {
-            points.push(points[0]);
-        }
-        var pattern = List.toArray(style.dashing);
-        var i = points.length - 1;
-        if (i <= 0) {
-            return;
-        }
-        var x0 = points[i]._0, y0 = points[i]._1;
-        var x1=0, y1=0, dx=0, dy=0, remaining=0, nx=0, ny=0;
-        var pindex = 0, plen = pattern.length;
-        var draw = true, segmentLength = pattern[0];
-        ctx.moveTo(x0,y0);
-        while (i--) {
-            x1 = points[i]._0; y1 = points[i]._1;
-            dx = x1 - x0; dy = y1 - y0;
-            remaining = Math.sqrt(dx * dx + dy * dy);
-            while (segmentLength <= remaining) {
-                x0 += dx * segmentLength / remaining;
-                y0 += dy * segmentLength / remaining;
-                ctx[draw ? 'lineTo' : 'moveTo'](x0, y0);
-                // update starting position
-                dx = x1 - x0; dy = y1 - y0;
-                remaining = Math.sqrt(dx * dx + dy * dy);
-                // update pattern
-                draw = !draw;
-                pindex = (pindex + 1) % plen;
-                segmentLength = pattern[pindex];
-            }
-            if (remaining > 0) {
-                ctx[draw ? 'lineTo' : 'moveTo'](x1, y1);
-                segmentLength -= remaining;
-            }
-            x0 = x1; y0 = y1;
-        }
-    }
-
-    function drawLine(ctx, style, path) {
-        ctx.lineWidth = style.width;
-
-        var cap = style.cap.ctor;
-        ctx.lineCap = cap === 'Flat'
-            ? 'butt'
-            : cap === 'Round'
-                ? 'round'
-                : 'square';
-
-        var join = style.join.ctor;
-        ctx.lineJoin = join === 'Smooth'
-            ? 'round'
-            : join === 'Sharp'
-                ? 'miter'
-                : 'bevel';
-
-        ctx.miterLimit = style.join._0 || 10;
-        ctx.strokeStyle = Color.toCss(style.color);
-
-        return line(ctx, style, path);
-    }
-
-    function texture(redo, ctx, src) {
-        var img = new Image();
-        img.src = src;
-        img.onload = redo;
-        return ctx.createPattern(img, 'repeat');
-    }
-
-    function gradient(ctx, grad) {
-        var g;
-        var stops = [];
-        if (grad.ctor === 'Linear') {
-            var p0 = grad._0, p1 = grad._1;
-            g = ctx.createLinearGradient(p0._0, -p0._1, p1._0, -p1._1);
-            stops = List.toArray(grad._2);
-        } else {
-            var p0 = grad._0, p2 = grad._2;
-            g = ctx.createRadialGradient(p0._0, -p0._1, grad._1, p2._0, -p2._1, grad._3);
-            stops = List.toArray(grad._4);
-        }
-        var len = stops.length;
-        for (var i = 0; i < len; ++i) {
-            var stop = stops[i];
-            g.addColorStop(stop._0, Color.toCss(stop._1));
-        }
-        return g;
-    }
-
-    function drawShape(redo, ctx, style, path) {
-        trace(ctx, path);
-        var sty = style.ctor;
-        ctx.fillStyle = sty === 'Solid'
-            ? Color.toCss(style._0)
-            : sty === 'Texture'
-                ? texture(redo, ctx, style._0)
-                : gradient(ctx, style._0);
-
-        ctx.scale(1,-1);
-        ctx.fill();
-    }
-
-    function drawImage(redo, ctx, form) {
-        var img = new Image();
-        img.onload = redo;
-        img.src = form._3;
-        var w = form._0,
-            h = form._1,
-            pos = form._2,
-            srcX = pos._0,
-            srcY = pos._1,
-            srcW = w,
-            srcH = h,
-            destX = -w/2,
-            destY = -h/2,
-            destW = w,
-            destH = h;
-
-        ctx.scale(1,-1);
-        ctx.drawImage(img, srcX, srcY, srcW, srcH, destX, destY, destW, destH);
-    }
-
-    function renderForm(redo, ctx, form) {
-        ctx.save();
-        var x = form.x, y = form.y, theta = form.theta, scale = form.scale;
-        if (x !== 0 || y !== 0) ctx.translate(x, y);
-        if (theta !== 0) ctx.rotate(theta);
-        if (scale !== 1) ctx.scale(scale,scale);
-        if (form.alpha !== 1) ctx.globalAlpha = ctx.globalAlpha * form.alpha;
-        ctx.beginPath();
-        var f = form.form;
-        switch(f.ctor) {
-        case 'FPath' : drawLine(ctx, f._0, f._1); break;
-        case 'FImage': drawImage(redo, ctx, f); break;
-        case 'FShape':
-          if (f._0.ctor === 'Line') {
-            f._1.closed = true;
-            drawLine(ctx, f._0._0, f._1);
-          } else {
-            drawShape(redo, ctx, f._0._0, f._1);
-          }
-        break;
-        }
-        ctx.restore();
-    }
-
-    function formToMatrix(form) {
-       var scale = form.scale;
-       var matrix = A6( Transform.matrix, scale, 0, 0, scale, form.x, form.y );
-
-       var theta = form.theta
-       if (theta !== 0) {
-           matrix = A2( Transform.multiply, matrix, Transform.rotation(theta) );
-       }
-
-       return matrix;
-    }
-
-    function str(n) {
-        if (n < 0.00001 && n > -0.00001) return 0;
-        return n;
-    }
-
-    function makeTransform(w, h, form, matrices) {
-        var props = form.form._0.props;
-        var m = A6( Transform.matrix, 1, 0, 0, -1,
-                    (w - props.width ) / 2,
-                    (h - props.height) / 2 );
-        var len = matrices.length;
-        for (var i = 0; i < len; ++i) {
-            m = A2( Transform.multiply, m, matrices[i] );
-        }
-        m = A2( Transform.multiply, m, formToMatrix(form) );
-
-        return 'matrix(' + str( m[0]) + ', ' + str( m[3]) + ', ' +
-                           str(-m[1]) + ', ' + str(-m[4]) + ', ' +
-                           str( m[2]) + ', ' + str( m[5]) + ')';
-    }
-
-    function stepperHelp(list) {
-        var arr = List.toArray(list);
-        var i = 0;
-        function peekNext() {
-            return i < arr.length ? arr[i].form.ctor : '';
-        }
-        // assumes that there is a next element
-        function next() {
-            var out = arr[i];
-            ++i;
-            return out;
-        }
-        return {
-            peekNext:peekNext,
-            next:next
-        };
-    }
-
-    function formStepper(forms) {
-        var ps = [stepperHelp(forms)];
-        var matrices = [];
-        var alphas = [];
-        function peekNext() {
-            var len = ps.length;
-            var formType = '';
-            for (var i = 0; i < len; ++i ) {
-                if (formType = ps[i].peekNext()) return formType;
-            }
-            return '';
-        }
-        // assumes that there is a next element
-        function next(ctx) {
-            while (!ps[0].peekNext()) {
-                ps.shift();
-                matrices.pop();
-                alphas.shift();
-                if (ctx) { ctx.restore(); }
-            }
-            var out = ps[0].next();
-            var f = out.form;
-            if (f.ctor === 'FGroup') {
-                ps.unshift(stepperHelp(f._1));
-                var m = A2(Transform.multiply, f._0, formToMatrix(out));
-                ctx.save();
-                ctx.transform(m[0], m[3], m[1], m[4], m[2], m[5]);
-                matrices.push(m);
-
-                var alpha = (alphas[0] || 1) * out.alpha;
-                alphas.unshift(alpha);
-                ctx.globalAlpha = alpha;
-            }
-            return out;
-        }
-        function transforms() { return matrices; }
-        function alpha() { return alphas[0] || 1; }
-        return {
-            peekNext:peekNext,
-            next:next,
-            transforms:transforms,
-            alpha:alpha
-        };
-    }
-
-    function makeCanvas(w,h) {
-        var canvas = NativeElement.createNode('canvas');
-        canvas.style.width  = w + 'px';
-        canvas.style.height = h + 'px';
-        canvas.style.display = "block";
-        canvas.style.position = "absolute";
-        canvas.width  = w;
-        canvas.height = h;
-        return canvas;
-    }
-
-    function render(model) {
-        var div = NativeElement.createNode('div');
-        div.style.overflow = 'hidden';
-        div.style.position = 'relative';
-        update(div, model, model);
-        return div;
-    }
-
-    function nodeStepper(w,h,div) {
-        var kids = div.childNodes;
-        var i = 0;
-        function transform(transforms, ctx) {
-            ctx.translate(w/2, h/2);
-            ctx.scale(1,-1);
-            var len = transforms.length;
-            for (var i = 0; i < len; ++i) {
-                var m = transforms[i];
-                ctx.save();
-                ctx.transform(m[0], m[3], m[1], m[4], m[2], m[5]);
-            }
-            return ctx;
-        }
-        function nextContext(transforms) {
-            while (i < kids.length) {
-                var node = kids[i];
-                if (node.getContext) {
-                    node.width = w;
-                    node.height = h;
-                    node.style.width = w + 'px';
-                    node.style.height = h + 'px';
-                    ++i;
-                    return transform(transforms, node.getContext('2d'));
-                }
-                div.removeChild(node);
-            }
-            var canvas = makeCanvas(w,h);
-            div.appendChild(canvas);
-            // we have added a new node, so we must step our position
-            ++i;
-            return transform(transforms, canvas.getContext('2d'));
-        }
-        function addElement(matrices, alpha, form) {
-            var kid = kids[i];
-            var elem = form.form._0;
-
-            var node = (!kid || kid.getContext)
-                ? NativeElement.render(elem)
-                : NativeElement.update(kid, kid.oldElement, elem);
-
-            node.style.position = 'absolute';
-            node.style.opacity = alpha * form.alpha * elem.props.opacity;
-            NativeElement.addTransform(node.style, makeTransform(w, h, form, matrices));
-            node.oldElement = elem;
-            ++i;
-            if (!kid) {
-                div.appendChild(node);
-            } else {
-                div.insertBefore(node, kid);
-            }
-        }
-        function clearRest() {
-            while (i < kids.length) {
-                div.removeChild(kids[i]);
-            }
-        }
-        return { nextContext:nextContext, addElement:addElement, clearRest:clearRest };
-    }
-
-
-    function update(div, _, model) {
-        var w = model.w;
-        var h = model.h;
-
-        var forms = formStepper(model.forms);
-        var nodes = nodeStepper(w,h,div);
-        var ctx = null;
-        var formType = '';
-
-        while (formType = forms.peekNext()) {
-            // make sure we have context if we need it
-            if (ctx === null && formType !== 'FElement') {
-                ctx = nodes.nextContext(forms.transforms());
-                ctx.globalAlpha = forms.alpha();
-            }
-
-            var form = forms.next(ctx);
-            // if it is FGroup, all updates are made within formStepper when next is called.
-            if (formType === 'FElement') {
-                // update or insert an element, get a new context
-                nodes.addElement(forms.transforms(), forms.alpha(), form);
-                ctx = null;
-            } else if (formType !== 'FGroup') {
-                renderForm(function() { update(div, model, model); }, ctx, form);
-            }
-        }
-        nodes.clearRest();
-        return div;
-    }
-
-
-    function collage(w,h,forms) {
-        return A3(Element.newElement, w, h, {
-            ctor: 'Custom',
-            type: 'Collage',
-            render: render,
-            update: update,
-            model: {w:w, h:h, forms:forms}
-      	});
-    }
-
-    return localRuntime.Native.Graphics.Collage.values = {
-        collage:F3(collage)
     };
 };
 
@@ -7423,6 +6761,95 @@ Elm.Native.List.make = function(elm) {
 
 };
 
+
+// setup
+Elm.Native = Elm.Native || {};
+Elm.Native.Markdown = Elm.Native.Markdown || {};
+
+// definition
+Elm.Native.Markdown.make = function(localRuntime) {
+    'use strict';
+
+    // attempt to short-circuit
+    if ('values' in Elm.Native.Markdown)
+    {
+        return Elm.Native.Markdown.values;
+    }
+
+    var Text = Elm.Native.Text.make(localRuntime);
+
+    /**
+     * marked - a markdown parser
+     * Copyright (c) 2011-2014, Christopher Jeffrey. (MIT Licensed)
+     * https://github.com/chjj/marked
+     */
+    (function(){var block={newline:/^\n+/,code:/^( {4}[^\n]+\n*)+/,fences:noop,hr:/^( *[-*_]){3,} *(?:\n+|$)/,heading:/^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)/,nptable:noop,lheading:/^([^\n]+)\n *(=|-){2,} *(?:\n+|$)/,blockquote:/^( *>[^\n]+(\n(?!def)[^\n]+)*\n*)+/,list:/^( *)(bull) [\s\S]+?(?:hr|def|\n{2,}(?! )(?!\1bull )\n*|\s*$)/,html:/^ *(?:comment|closed|closing) *(?:\n{2,}|\s*$)/,def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +["(]([^\n]+)[")])? *(?:\n+|$)/,table:noop,paragraph:/^((?:[^\n]+\n?(?!hr|heading|lheading|blockquote|tag|def))+)\n*/,text:/^[^\n]+/};block.bullet=/(?:[*+-]|\d+\.)/;block.item=/^( *)(bull) [^\n]*(?:\n(?!\1bull )[^\n]*)*/;block.item=replace(block.item,"gm")(/bull/g,block.bullet)();block.list=replace(block.list)(/bull/g,block.bullet)("hr","\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))")("def","\\n+(?="+block.def.source+")")();block.blockquote=replace(block.blockquote)("def",block.def)();block._tag="(?!(?:"+"a|em|strong|small|s|cite|q|dfn|abbr|data|time|code"+"|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo"+"|span|br|wbr|ins|del|img)\\b)\\w+(?!:/|[^\\w\\s@]*@)\\b";block.html=replace(block.html)("comment",/<!--[\s\S]*?-->/)("closed",/<(tag)[\s\S]+?<\/\1>/)("closing",/<tag(?:"[^"]*"|'[^']*'|[^'">])*?>/)(/tag/g,block._tag)();block.paragraph=replace(block.paragraph)("hr",block.hr)("heading",block.heading)("lheading",block.lheading)("blockquote",block.blockquote)("tag","<"+block._tag)("def",block.def)();block.normal=merge({},block);block.gfm=merge({},block.normal,{fences:/^ *(`{3,}|~{3,}) *(\S+)? *\n([\s\S]+?)\s*\1 *(?:\n+|$)/,paragraph:/^/});block.gfm.paragraph=replace(block.paragraph)("(?!","(?!"+block.gfm.fences.source.replace("\\1","\\2")+"|"+block.list.source.replace("\\1","\\3")+"|")();block.tables=merge({},block.gfm,{nptable:/^ *(\S.*\|.*)\n *([-:]+ *\|[-| :]*)\n((?:.*\|.*(?:\n|$))*)\n*/,table:/^ *\|(.+)\n *\|( *[-:]+[-| :]*)\n((?: *\|.*(?:\n|$))*)\n*/});function Lexer(options){this.tokens=[];this.tokens.links={};this.options=options||marked.defaults;this.rules=block.normal;if(this.options.gfm){if(this.options.tables){this.rules=block.tables}else{this.rules=block.gfm}}}Lexer.rules=block;Lexer.lex=function(src,options){var lexer=new Lexer(options);return lexer.lex(src)};Lexer.prototype.lex=function(src){src=src.replace(/\r\n|\r/g,"\n").replace(/\t/g,"    ").replace(/\u00a0/g," ").replace(/\u2424/g,"\n");return this.token(src,true)};Lexer.prototype.token=function(src,top,bq){var src=src.replace(/^ +$/gm,""),next,loose,cap,bull,b,item,space,i,l;while(src){if(cap=this.rules.newline.exec(src)){src=src.substring(cap[0].length);if(cap[0].length>1){this.tokens.push({type:"space"})}}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);cap=cap[0].replace(/^ {4}/gm,"");this.tokens.push({type:"code",text:!this.options.pedantic?cap.replace(/\n+$/,""):cap});continue}if(cap=this.rules.fences.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"code",lang:cap[2],text:cap[3]});continue}if(cap=this.rules.heading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[1].length,text:cap[2]});continue}if(top&&(cap=this.rules.nptable.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].split(/ *\| */)}this.tokens.push(item);continue}if(cap=this.rules.lheading.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"heading",depth:cap[2]==="="?1:2,text:cap[1]});continue}if(cap=this.rules.hr.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"hr"});continue}if(cap=this.rules.blockquote.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"blockquote_start"});cap=cap[0].replace(/^ *> ?/gm,"");this.token(cap,top,true);this.tokens.push({type:"blockquote_end"});continue}if(cap=this.rules.list.exec(src)){src=src.substring(cap[0].length);bull=cap[2];this.tokens.push({type:"list_start",ordered:bull.length>1});cap=cap[0].match(this.rules.item);next=false;l=cap.length;i=0;for(;i<l;i++){item=cap[i];space=item.length;item=item.replace(/^ *([*+-]|\d+\.) +/,"");if(~item.indexOf("\n ")){space-=item.length;item=!this.options.pedantic?item.replace(new RegExp("^ {1,"+space+"}","gm"),""):item.replace(/^ {1,4}/gm,"")}if(this.options.smartLists&&i!==l-1){b=block.bullet.exec(cap[i+1])[0];if(bull!==b&&!(bull.length>1&&b.length>1)){src=cap.slice(i+1).join("\n")+src;i=l-1}}loose=next||/\n\n(?!\s*$)/.test(item);if(i!==l-1){next=item.charAt(item.length-1)==="\n";if(!loose)loose=next}this.tokens.push({type:loose?"loose_item_start":"list_item_start"});this.token(item,false,bq);this.tokens.push({type:"list_item_end"})}this.tokens.push({type:"list_end"});continue}if(cap=this.rules.html.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:this.options.sanitize?"paragraph":"html",pre:cap[1]==="pre"||cap[1]==="script"||cap[1]==="style",text:cap[0]});continue}if(!bq&&top&&(cap=this.rules.def.exec(src))){src=src.substring(cap[0].length);this.tokens.links[cap[1].toLowerCase()]={href:cap[2],title:cap[3]};continue}if(top&&(cap=this.rules.table.exec(src))){src=src.substring(cap[0].length);item={type:"table",header:cap[1].replace(/^ *| *\| *$/g,"").split(/ *\| */),align:cap[2].replace(/^ *|\| *$/g,"").split(/ *\| */),cells:cap[3].replace(/(?: *\| *)?\n$/,"").split("\n")};for(i=0;i<item.align.length;i++){if(/^ *-+: *$/.test(item.align[i])){item.align[i]="right"}else if(/^ *:-+: *$/.test(item.align[i])){item.align[i]="center"}else if(/^ *:-+ *$/.test(item.align[i])){item.align[i]="left"}else{item.align[i]=null}}for(i=0;i<item.cells.length;i++){item.cells[i]=item.cells[i].replace(/^ *\| *| *\| *$/g,"").split(/ *\| */)}this.tokens.push(item);continue}if(top&&(cap=this.rules.paragraph.exec(src))){src=src.substring(cap[0].length);this.tokens.push({type:"paragraph",text:cap[1].charAt(cap[1].length-1)==="\n"?cap[1].slice(0,-1):cap[1]});continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);this.tokens.push({type:"text",text:cap[0]});continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return this.tokens};var inline={escape:/^\\([\\`*{}\[\]()#+\-.!_>])/,autolink:/^<([^ >]+(@|:\/)[^ >]+)>/,url:noop,tag:/^<!--[\s\S]*?-->|^<\/?\w+(?:"[^"]*"|'[^']*'|[^'">])*?>/,link:/^!?\[(inside)\]\(href\)/,reflink:/^!?\[(inside)\]\s*\[([^\]]*)\]/,nolink:/^!?\[((?:\[[^\]]*\]|[^\[\]])*)\]/,strong:/^__([\s\S]+?)__(?!_)|^\*\*([\s\S]+?)\*\*(?!\*)/,em:/^\b_((?:__|[\s\S])+?)_\b|^\*((?:\*\*|[\s\S])+?)\*(?!\*)/,code:/^(`+)\s*([\s\S]*?[^`])\s*\1(?!`)/,br:/^ {2,}\n(?!\s*$)/,del:noop,text:/^[\s\S]+?(?=[\\<!\[_*`]| {2,}\n|$)/};inline._inside=/(?:\[[^\]]*\]|[^\[\]]|\](?=[^\[]*\]))*/;inline._href=/\s*<?([\s\S]*?)>?(?:\s+['"]([\s\S]*?)['"])?\s*/;inline.link=replace(inline.link)("inside",inline._inside)("href",inline._href)();inline.reflink=replace(inline.reflink)("inside",inline._inside)();inline.normal=merge({},inline);inline.pedantic=merge({},inline.normal,{strong:/^__(?=\S)([\s\S]*?\S)__(?!_)|^\*\*(?=\S)([\s\S]*?\S)\*\*(?!\*)/,em:/^_(?=\S)([\s\S]*?\S)_(?!_)|^\*(?=\S)([\s\S]*?\S)\*(?!\*)/});inline.gfm=merge({},inline.normal,{escape:replace(inline.escape)("])","~|])")(),url:/^(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/,del:/^~~(?=\S)([\s\S]*?\S)~~/,text:replace(inline.text)("]|","~]|")("|","|https?://|")()});inline.breaks=merge({},inline.gfm,{br:replace(inline.br)("{2,}","*")(),text:replace(inline.gfm.text)("{2,}","*")()});function InlineLexer(links,options){this.options=options||marked.defaults;this.links=links;this.rules=inline.normal;this.renderer=this.options.renderer||new Renderer;this.renderer.options=this.options;if(!this.links){throw new Error("Tokens array requires a `links` property.")}if(this.options.gfm){if(this.options.breaks){this.rules=inline.breaks}else{this.rules=inline.gfm}}else if(this.options.pedantic){this.rules=inline.pedantic}}InlineLexer.rules=inline;InlineLexer.output=function(src,links,options){var inline=new InlineLexer(links,options);return inline.output(src)};InlineLexer.prototype.output=function(src){var out="",link,text,href,cap;while(src){if(cap=this.rules.escape.exec(src)){src=src.substring(cap[0].length);out+=cap[1];continue}if(cap=this.rules.autolink.exec(src)){src=src.substring(cap[0].length);if(cap[2]==="@"){text=cap[1].charAt(6)===":"?this.mangle(cap[1].substring(7)):this.mangle(cap[1]);href=this.mangle("mailto:")+text}else{text=escape(cap[1]);href=text}out+=this.renderer.link(href,null,text);continue}if(!this.inLink&&(cap=this.rules.url.exec(src))){src=src.substring(cap[0].length);text=escape(cap[1]);href=text;out+=this.renderer.link(href,null,text);continue}if(cap=this.rules.tag.exec(src)){if(!this.inLink&&/^<a /i.test(cap[0])){this.inLink=true}else if(this.inLink&&/^<\/a>/i.test(cap[0])){this.inLink=false}src=src.substring(cap[0].length);out+=this.options.sanitize?escape(cap[0]):cap[0];continue}if(cap=this.rules.link.exec(src)){src=src.substring(cap[0].length);this.inLink=true;out+=this.outputLink(cap,{href:cap[2],title:cap[3]});this.inLink=false;continue}if((cap=this.rules.reflink.exec(src))||(cap=this.rules.nolink.exec(src))){src=src.substring(cap[0].length);link=(cap[2]||cap[1]).replace(/\s+/g," ");link=this.links[link.toLowerCase()];if(!link||!link.href){out+=cap[0].charAt(0);src=cap[0].substring(1)+src;continue}this.inLink=true;out+=this.outputLink(cap,link);this.inLink=false;continue}if(cap=this.rules.strong.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.strong(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.em.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.em(this.output(cap[2]||cap[1]));continue}if(cap=this.rules.code.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.codespan(escape(cap[2],true));continue}if(cap=this.rules.br.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.br();continue}if(cap=this.rules.del.exec(src)){src=src.substring(cap[0].length);out+=this.renderer.del(this.output(cap[1]));continue}if(cap=this.rules.text.exec(src)){src=src.substring(cap[0].length);out+=escape(this.smartypants(cap[0]));continue}if(src){throw new Error("Infinite loop on byte: "+src.charCodeAt(0))}}return out};InlineLexer.prototype.outputLink=function(cap,link){var href=escape(link.href),title=link.title?escape(link.title):null;return cap[0].charAt(0)!=="!"?this.renderer.link(href,title,this.output(cap[1])):this.renderer.image(href,title,escape(cap[1]))};InlineLexer.prototype.smartypants=function(text){if(!this.options.smartypants)return text;return text.replace(/--/g,"—").replace(/(^|[-\u2014/(\[{"\s])'/g,"$1‘").replace(/'/g,"’").replace(/(^|[-\u2014/(\[{\u2018\s])"/g,"$1“").replace(/"/g,"”").replace(/\.{3}/g,"…")};InlineLexer.prototype.mangle=function(text){var out="",l=text.length,i=0,ch;for(;i<l;i++){ch=text.charCodeAt(i);if(Math.random()>.5){ch="x"+ch.toString(16)}out+="&#"+ch+";"}return out};function Renderer(options){this.options=options||{}}Renderer.prototype.code=function(code,lang,escaped){if(this.options.highlight){var out=this.options.highlight(code,lang);if(out!=null&&out!==code){escaped=true;code=out}}if(!lang){return"<pre><code>"+(escaped?code:escape(code,true))+"\n</code></pre>"}return'<pre><code class="'+this.options.langPrefix+escape(lang,true)+'">'+(escaped?code:escape(code,true))+"\n</code></pre>\n"};Renderer.prototype.blockquote=function(quote){return"<blockquote>\n"+quote+"</blockquote>\n"};Renderer.prototype.html=function(html){return html};Renderer.prototype.heading=function(text,level,raw){return"<h"+level+' id="'+this.options.headerPrefix+raw.toLowerCase().replace(/[^\w]+/g,"-")+'">'+text+"</h"+level+">\n"};Renderer.prototype.hr=function(){return this.options.xhtml?"<hr/>\n":"<hr>\n"};Renderer.prototype.list=function(body,ordered){var type=ordered?"ol":"ul";return"<"+type+">\n"+body+"</"+type+">\n"};Renderer.prototype.listitem=function(text){return"<li>"+text+"</li>\n"};Renderer.prototype.paragraph=function(text){return"<p>"+text+"</p>\n"};Renderer.prototype.table=function(header,body){return"<table>\n"+"<thead>\n"+header+"</thead>\n"+"<tbody>\n"+body+"</tbody>\n"+"</table>\n"};Renderer.prototype.tablerow=function(content){return"<tr>\n"+content+"</tr>\n"};Renderer.prototype.tablecell=function(content,flags){var type=flags.header?"th":"td";var tag=flags.align?"<"+type+' style="text-align:'+flags.align+'">':"<"+type+">";return tag+content+"</"+type+">\n"};Renderer.prototype.strong=function(text){return"<strong>"+text+"</strong>"};Renderer.prototype.em=function(text){return"<em>"+text+"</em>"};Renderer.prototype.codespan=function(text){return"<code>"+text+"</code>"};Renderer.prototype.br=function(){return this.options.xhtml?"<br/>":"<br>"};Renderer.prototype.del=function(text){return"<del>"+text+"</del>"};Renderer.prototype.link=function(href,title,text){if(this.options.sanitize){try{var prot=decodeURIComponent(unescape(href)).replace(/[^\w:]/g,"").toLowerCase()}catch(e){return""}if(prot.indexOf("javascript:")===0){return""}}var out='<a href="'+href+'"';if(title){out+=' title="'+title+'"'}out+=">"+text+"</a>";return out};Renderer.prototype.image=function(href,title,text){var out='<img src="'+href+'" alt="'+text+'"';if(title){out+=' title="'+title+'"'}out+=this.options.xhtml?"/>":">";return out};function Parser(options){this.tokens=[];this.token=null;this.options=options||marked.defaults;this.options.renderer=this.options.renderer||new Renderer;this.renderer=this.options.renderer;this.renderer.options=this.options}Parser.parse=function(src,options,renderer){var parser=new Parser(options,renderer);return parser.parse(src)};Parser.prototype.parse=function(src){this.inline=new InlineLexer(src.links,this.options,this.renderer);this.tokens=src.reverse();var out="";while(this.next()){out+=this.tok()}return out};Parser.prototype.next=function(){return this.token=this.tokens.pop()};Parser.prototype.peek=function(){return this.tokens[this.tokens.length-1]||0};Parser.prototype.parseText=function(){var body=this.token.text;while(this.peek().type==="text"){body+="\n"+this.next().text}return this.inline.output(body)};Parser.prototype.tok=function(){switch(this.token.type){case"space":{return""}case"hr":{return this.renderer.hr()}case"heading":{return this.renderer.heading(this.inline.output(this.token.text),this.token.depth,this.token.text)}case"code":{return this.renderer.code(this.token.text,this.token.lang,this.token.escaped)}case"table":{var header="",body="",i,row,cell,flags,j;cell="";for(i=0;i<this.token.header.length;i++){flags={header:true,align:this.token.align[i]};cell+=this.renderer.tablecell(this.inline.output(this.token.header[i]),{header:true,align:this.token.align[i]})}header+=this.renderer.tablerow(cell);for(i=0;i<this.token.cells.length;i++){row=this.token.cells[i];cell="";for(j=0;j<row.length;j++){cell+=this.renderer.tablecell(this.inline.output(row[j]),{header:false,align:this.token.align[j]})}body+=this.renderer.tablerow(cell)}return this.renderer.table(header,body)}case"blockquote_start":{var body="";while(this.next().type!=="blockquote_end"){body+=this.tok()}return this.renderer.blockquote(body)}case"list_start":{var body="",ordered=this.token.ordered;while(this.next().type!=="list_end"){body+=this.tok()}return this.renderer.list(body,ordered)}case"list_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.token.type==="text"?this.parseText():this.tok()}return this.renderer.listitem(body)}case"loose_item_start":{var body="";while(this.next().type!=="list_item_end"){body+=this.tok()}return this.renderer.listitem(body)}case"html":{var html=!this.token.pre&&!this.options.pedantic?this.inline.output(this.token.text):this.token.text;return this.renderer.html(html)}case"paragraph":{return this.renderer.paragraph(this.inline.output(this.token.text))}case"text":{return this.renderer.paragraph(this.parseText())}}};function escape(html,encode){return html.replace(!encode?/&(?!#?\w+;)/g:/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}function unescape(html){return html.replace(/&([#\w]+);/g,function(_,n){n=n.toLowerCase();if(n==="colon")return":";if(n.charAt(0)==="#"){return n.charAt(1)==="x"?String.fromCharCode(parseInt(n.substring(2),16)):String.fromCharCode(+n.substring(1))}return""})}function replace(regex,opt){regex=regex.source;opt=opt||"";return function self(name,val){if(!name)return new RegExp(regex,opt);val=val.source||val;val=val.replace(/(^|[^\[])\^/g,"$1");regex=regex.replace(name,val);return self}}function noop(){}noop.exec=noop;function merge(obj){var i=1,target,key;for(;i<arguments.length;i++){target=arguments[i];for(key in target){if(Object.prototype.hasOwnProperty.call(target,key)){obj[key]=target[key]}}}return obj}function marked(src,opt,callback){if(callback||typeof opt==="function"){if(!callback){callback=opt;opt=null}opt=merge({},marked.defaults,opt||{});var highlight=opt.highlight,tokens,pending,i=0;try{tokens=Lexer.lex(src,opt)}catch(e){return callback(e)}pending=tokens.length;var done=function(err){if(err){opt.highlight=highlight;return callback(err)}var out;try{out=Parser.parse(tokens,opt)}catch(e){err=e}opt.highlight=highlight;return err?callback(err):callback(null,out)};if(!highlight||highlight.length<3){return done()}delete opt.highlight;if(!pending)return done();for(;i<tokens.length;i++){(function(token){if(token.type!=="code"){return--pending||done()}return highlight(token.text,token.lang,function(err,code){if(err)return done(err);if(code==null||code===token.text){return--pending||done()}token.text=code;token.escaped=true;--pending||done()})})(tokens[i])}return}try{if(opt)opt=merge({},marked.defaults,opt);return Parser.parse(Lexer.lex(src,opt),opt)}catch(e){e.message+="\nPlease report this to https://github.com/chjj/marked.";if((opt||marked.defaults).silent){return"<p>An error occured:</p><pre>"+escape(e.message+"",true)+"</pre>"}throw e}}marked.options=marked.setOptions=function(opt){merge(marked.defaults,opt);return marked};marked.defaults={gfm:true,tables:true,breaks:false,pedantic:false,sanitize:false,smartLists:false,silent:false,highlight:null,langPrefix:"lang-",smartypants:false,headerPrefix:"",renderer:new Renderer,xhtml:false};marked.Parser=Parser;marked.parser=Parser.parse;marked.Renderer=Renderer;marked.Lexer=Lexer;marked.lexer=Lexer.lex;marked.InlineLexer=InlineLexer;marked.inlineLexer=InlineLexer.output;marked.parse=marked;if(typeof module!=="undefined"&&typeof exports==="object"){module.exports=marked}else if(typeof define==="function"&&define.amd){define(function(){return marked})}else{this.marked=marked}}).call(function(){return this||(typeof window!=="undefined"?window:global)}());
+
+    marked.setOptions({
+        highlight: function (code, lang) {
+            if (typeof hljs !== 'undefined'
+                && lang
+                && hljs.listLanguages().indexOf(lang) >= 0)
+            {
+                return hljs.highlight(lang, code, true).value;
+            }
+            return code;
+        }
+    });
+
+    function formatOptions(options) {
+        var gfm = options.githubFlavored;
+        if (gfm.ctor === 'Just')
+        {
+            return {
+                gfm: true,
+                tables: gfm.tables,
+                breaks: gfm.breaks,
+                sanitize: options.sanitize,
+                smartypants: options.smartypants
+            };
+        }
+        else
+        {
+            return {
+                gfm: false,
+                tables: false,
+                breaks: false,
+                sanitize: options.sanitize,
+                smartypants: options.smartypants
+            };
+        }
+    }
+
+    function toHtmlWith(options, rawMarkdown) {
+        var widget = {
+            type: "Widget",
+
+            init: function () {
+                var html = marked(rawMarkdown, formatOptions(options));
+                var div = document.createElement('div');
+                div.innerHTML = html;
+                return div;
+            },
+
+            update: function (previous, node) {
+                var html = marked(rawMarkdown, formatOptions(options));
+                node.innerHTML = html;
+                return node;
+            }
+        };
+        return widget;
+    }
+
+    function toElementWith(options, rawMarkdown) {
+        return Text.markdown(marked(rawMarkdown, formatOptions(options)));
+    }
+
+    return Elm.Native.Markdown.values = {
+        toHtmlWith: F2(toHtmlWith),
+        toElementWith: F2(toElementWith)
+    };
+};
 Elm.Native.Ports = {};
 Elm.Native.Ports.make = function(localRuntime) {
     localRuntime.Native = localRuntime.Native || {};
@@ -8749,104 +8176,176 @@ Elm.Native.String.make = function(elm) {
     };
 };
 
-Elm.Native.Transform2D = {};
-Elm.Native.Transform2D.make = function(elm) {
+Elm.Native.Text = {};
+Elm.Native.Text.make = function(elm) {
+    elm.Native = elm.Native || {};
+    elm.Native.Text = elm.Native.Text || {};
+    if (elm.Native.Text.values) return elm.Native.Text.values;
 
- elm.Native = elm.Native || {};
- elm.Native.Transform2D = elm.Native.Transform2D || {};
- if (elm.Native.Transform2D.values) return elm.Native.Transform2D.values;
+    var toCss = Elm.Native.Color.make(elm).toCss;
+    var Element = Elm.Graphics.Element.make(elm);
+    var NativeElement = Elm.Native.Graphics.Element.make(elm);
+    var List = Elm.Native.List.make(elm);
+    var Utils = Elm.Native.Utils.make(elm);
 
- var A;
- if (typeof Float32Array === 'undefined') {
-     A = function(arr) {
-         this.length = arr.length;
-         this[0] = arr[0];
-         this[1] = arr[1];
-         this[2] = arr[2];
-         this[3] = arr[3];
-         this[4] = arr[4];
-         this[5] = arr[5];
-     };
- } else {
-     A = Float32Array;
- }
+    function makeSpaces(s) {
+        if (s.length == 0) { return s; }
+        var arr = s.split('');
+        if (arr[0] == ' ') { arr[0] = "&nbsp;" }      
+        for (var i = arr.length; --i; ) {
+            if (arr[i][0] == ' ' && arr[i-1] == ' ') {
+                arr[i-1] = arr[i-1] + arr[i];
+                arr[i] = '';
+            }
+        }
+        for (var i = arr.length; i--; ) {
+            if (arr[i].length > 1 && arr[i][0] == ' ') {
+                var spaces = arr[i].split('');
+                for (var j = spaces.length - 2; j >= 0; j -= 2) {
+                    spaces[j] = '&nbsp;';
+                }
+                arr[i] = spaces.join('');
+            }
+        }
+        arr = arr.join('');
+        if (arr[arr.length-1] === " ") {
+            return arr.slice(0,-1) + '&nbsp;';
+        }
+        return arr;
+    }
 
- // layout of matrix in an array is
- //
- //   | m11 m12 dx |
- //   | m21 m22 dy |
- //   |  0   0   1 |
- //
- //  new A([ m11, m12, dx, m21, m22, dy ])
+    function properEscape(str) {
+        if (str.length == 0) return str;
+        str = str //.replace(/&/g,  "&#38;")
+            .replace(/"/g,  '&#34;')
+            .replace(/'/g,  "&#39;")
+            .replace(/</g,  "&#60;")
+            .replace(/>/g,  "&#62;")
+            .replace(/\n/g, "<br/>");
+        var arr = str.split('<br/>');
+        for (var i = arr.length; i--; ) {
+            arr[i] = makeSpaces(arr[i]);
+        }
+        return arr.join('<br/>');
+    }
 
- var identity = new A([1,0,0,0,1,0]);
- function matrix(m11, m12, m21, m22, dx, dy) {
-     return new A([m11, m12, dx, m21, m22, dy]);
- }
- function rotation(t) {
-     var c = Math.cos(t);
-     var s = Math.sin(t);
-     return new A([c, -s, 0, s, c, 0]);
- }
- function rotate(t,m) {
-     var c = Math.cos(t);
-     var s = Math.sin(t);
-     var m11 = m[0], m12 = m[1], m21 = m[3], m22 = m[4];
-     return new A([m11*c + m12*s, -m11*s + m12*c, m[2],
-                   m21*c + m22*s, -m21*s + m22*c, m[5]]);
- }
- /*
- function move(xy,m) {
-     var x = xy._0;
-     var y = xy._1;
-     var m11 = m[0], m12 = m[1], m21 = m[3], m22 = m[4];
-     return new A([m11, m12, m11*x + m12*y + m[2],
-                   m21, m22, m21*x + m22*y + m[5]]);
- }
- function scale(s,m) { return new A([m[0]*s, m[1]*s, m[2], m[3]*s, m[4]*s, m[5]]); }
- function scaleX(x,m) { return new A([m[0]*x, m[1], m[2], m[3]*x, m[4], m[5]]); }
- function scaleY(y,m) { return new A([m[0], m[1]*y, m[2], m[3], m[4]*y, m[5]]); }
- function reflectX(m) { return new A([-m[0], m[1], m[2], -m[3], m[4], m[5]]); }
- function reflectY(m) { return new A([m[0], -m[1], m[2], m[3], -m[4], m[5]]); }
+    function fromString(str) {
+        return Utils.txt(properEscape(str));
+    }
 
- function transform(m11, m21, m12, m22, mdx, mdy, n) {
-     var n11 = n[0], n12 = n[1], n21 = n[3], n22 = n[4], ndx = n[2], ndy = n[5];
-     return new A([m11*n11 + m12*n21,
-                   m11*n12 + m12*n22,
-                   m11*ndx + m12*ndy + mdx,
-                   m21*n11 + m22*n21,
-                   m21*n12 + m22*n22,
-                   m21*ndx + m22*ndy + mdy]);
- }
- */
- function multiply(m, n) {
-     var m11 = m[0], m12 = m[1], m21 = m[3], m22 = m[4], mdx = m[2], mdy = m[5];
-     var n11 = n[0], n12 = n[1], n21 = n[3], n22 = n[4], ndx = n[2], ndy = n[5];
-     return new A([m11*n11 + m12*n21,
-                   m11*n12 + m12*n22,
-                   m11*ndx + m12*ndy + mdx,
-                   m21*n11 + m22*n21,
-                   m21*n12 + m22*n22,
-                   m21*ndx + m22*ndy + mdy]);
- }
+    function append(xs, ys) {
+        return Utils.txt(Utils.makeText(xs) + Utils.makeText(ys));
+    }
 
- return elm.Native.Transform2D.values = {
-     identity:identity,
-     matrix:F6(matrix),
-     rotation:rotation,
-     multiply:F2(multiply)
-     /*
-     transform:F7(transform),
-     rotate:F2(rotate),
-     move:F2(move),
-     scale:F2(scale),
-     scaleX:F2(scaleX),
-     scaleY:F2(scaleY),
-     reflectX:reflectX,
-     reflectY:reflectY
-     */
- };
+    // conversions from Elm values to CSS
+    function toTypefaces(list) {
+        var typefaces = List.toArray(list);
+        for (var i = typefaces.length; i--; ) {
+            var typeface = typefaces[i];
+            if (typeface.indexOf(' ') > -1) {
+                typefaces[i] = "'" + typeface + "'";
+            }
+        }
+        return typefaces.join(',');
+    }
+    function toLine(line) {
+        var ctor = line.ctor;
+        return ctor === 'Under' ? 'underline' :
+               ctor === 'Over'  ? 'overline'  : 'line-through';
+    }
 
+    // setting styles of Text
+    function style(style, text) {
+        var newText = '<span style="color:' + toCss(style.color) + ';'
+        if (style.typeface.ctor !== '[]') {
+            newText += 'font-family:' + toTypefaces(style.typeface) + ';'
+        }
+        if (style.height.ctor !== "Nothing") {
+            newText += 'font-size:' + style.height._0 + 'px;';
+        }
+        if (style.bold) {
+            newText += 'font-weight:bold;';
+        }
+        if (style.italic) {
+            newText += 'font-style:italic;';
+        }
+        if (style.line.ctor !== 'Nothing') {
+            newText += 'text-decoration:' + toLine(style.line._0) + ';';
+        }
+        newText += '">' + Utils.makeText(text) + '</span>'
+        return Utils.txt(newText);
+    }
+    function height(px, text) {
+        return { style: 'font-size:' + px + 'px;', text:text }
+    }
+    function typeface(names, text) {
+        return { style: 'font-family:' + toTypefaces(names) + ';', text:text }
+    }
+    function monospace(text) {
+        return { style: 'font-family:monospace;', text:text }
+    }
+    function italic(text) {
+        return { style: 'font-style:italic;', text:text }
+    }
+    function bold(text) {
+        return { style: 'font-weight:bold;', text:text }
+    }
+    function link(href, text) {
+        return { href: fromString(href), text:text };
+    }
+    function line(line, text) {
+        return { style: 'text-decoration:' + toLine(line) + ';', text:text };
+    }
+
+    function color(color, text) {
+        return { style: 'color:' + toCss(color) + ';', text:text };
+    }
+
+    function block(align) {
+        return function(text) {
+            var raw = {
+                ctor :'RawHtml',
+                html : Utils.makeText(text),
+                align: align
+            };
+            var pos = A2(NativeElement.htmlHeight, 0, raw);
+            return A3(Element.newElement, pos._0, pos._1, raw);
+        }
+    }
+
+    function markdown(text) {
+        var raw = {
+            ctor:'RawHtml',
+            html: text,
+            align: null
+        };
+        var pos = A2(NativeElement.htmlHeight, 0, raw);
+        return A3(Element.newElement, pos._0, pos._1, raw);
+    }
+
+    return elm.Native.Text.values = {
+        fromString: fromString,
+        append: F2(append),
+
+        height : F2(height),
+        italic : italic,
+        bold : bold,
+        line : F2(line),
+        monospace : monospace,
+        typeface : F2(typeface),
+        color : F2(color),
+        link : F2(link),
+        style : F2(style),
+
+        leftAligned  : block('left'),
+        rightAligned : block('right'),
+        centered     : block('center'),
+        justified    : block('justify'),
+        markdown     : markdown,
+
+        toTypefaces:toTypefaces,
+        toLine:toLine
+    };
 };
 
 Elm.Native = Elm.Native || {};
@@ -11125,7 +10624,7 @@ Elm.PLA.make = function (_elm) {
             return $Result.Ok(t._0);
             case "Pro":
             return $Result.fromMaybe(A2($Basics._op["++"],
-              "pro",
+              "p",
               A2($Basics._op["++"],
               $Basics.toString(t._0),
               "?")))(A2($Array.get,
@@ -11133,7 +10632,7 @@ Elm.PLA.make = function (_elm) {
               s));
             case "Var": return e(t._0);}
          _U.badCase($moduleName,
-         "between lines 132 and 136");
+         "between lines 133 and 137");
       }();
    });
    var relDict = function (relId) {
@@ -11215,7 +10714,7 @@ Elm.PLA.make = function (_elm) {
                          A2($eval,formula._1,e),
                          _v21._0));}
                     _U.badCase($moduleName,
-                    "between lines 152 and 155");
+                    "between lines 153 and 156");
                  }();
               }();
             case "Exists":
@@ -11241,7 +10740,7 @@ Elm.PLA.make = function (_elm) {
                                     });
                                  });}
                             _U.badCase($moduleName,
-                            "between lines 158 and 159");
+                            "between lines 159 and 160");
                          }();
                       });
                       var scope = function (x) {
@@ -11312,7 +10811,7 @@ Elm.PLA.make = function (_elm) {
                    break;}
               break;}
          _U.badCase($moduleName,
-         "between lines 140 and 160");
+         "between lines 141 and 161");
       }();
    });
    var showTerm = function (x) {
@@ -11379,22 +10878,29 @@ Elm.PLA.make = function (_elm) {
               A2($Basics._op["++"],
               showTerm(x._1),
               " ]"))));
-            case "Rel":
-            return A2($Basics._op["++"],
-              "[.Rel ",
-              A2($Basics._op["++"],
-              x._0,
-              A2($Basics._op["++"],
-              " ",
-              A2($Basics._op["++"],
-              "{(",
-              A2($Basics._op["++"],
-              A2($String.join,
-              ",",
-              A2($List.map,showTerm,x._1)),
-              ")} ]")))));}
+            case "Rel": switch (x._1.ctor)
+              {case "::":
+                 return A2($Basics._op["++"],
+                   "[.Rel ",
+                   A2($Basics._op["++"],
+                   x._0,
+                   A2($Basics._op["++"],
+                   " [.Tup ",
+                   A2($Basics._op["++"],
+                   A3($List.foldl,
+                   F2(function (x,y) {
+                      return A2($Basics._op["++"],
+                      y,
+                      A2($Basics._op["++"],
+                      " ",
+                      showTerm(x)));
+                   }),
+                   showTerm(x._1._0),
+                   x._1._1),
+                   " ] ]"))));}
+              break;}
          _U.badCase($moduleName,
-         "between lines 42 and 57");
+         "between lines 42 and 58");
       }();
    };
    var Conj = F2(function (a,b) {
@@ -11458,12 +10964,12 @@ Elm.PLA.make = function (_elm) {
       Pred,
       $Parser$Char.lower),
       $Parser$Char.parenthesized(term));
-      var self = $Parser.recursively(function (_v42) {
+      var self = $Parser.recursively(function (_v44) {
          return function () {
-            switch (_v42.ctor)
+            switch (_v44.ctor)
             {case "_Tuple0": return form;}
             _U.badCase($moduleName,
-            "on line 86, column 37 to 41");
+            "on line 87, column 37 to 41");
          }();
       });
       var neg = A2($Parser._op["*>"],
@@ -12383,71 +11889,113 @@ Elm.String.make = function (_elm) {
                         ,fromList: fromList};
    return _elm.String.values;
 };
-Elm.Transform2D = Elm.Transform2D || {};
-Elm.Transform2D.make = function (_elm) {
+Elm.Text = Elm.Text || {};
+Elm.Text.make = function (_elm) {
    "use strict";
-   _elm.Transform2D = _elm.Transform2D || {};
-   if (_elm.Transform2D.values)
-   return _elm.Transform2D.values;
+   _elm.Text = _elm.Text || {};
+   if (_elm.Text.values)
+   return _elm.Text.values;
    var _op = {},
    _N = Elm.Native,
    _U = _N.Utils.make(_elm),
    _L = _N.List.make(_elm),
    _P = _N.Ports.make(_elm),
-   $moduleName = "Transform2D",
-   $Native$Transform2D = Elm.Native.Transform2D.make(_elm);
-   var multiply = $Native$Transform2D.multiply;
-   var rotation = $Native$Transform2D.rotation;
-   var matrix = $Native$Transform2D.matrix;
-   var translation = F2(function (x,
-   y) {
-      return A6(matrix,
-      1,
-      0,
-      0,
-      1,
-      x,
-      y);
+   $moduleName = "Text",
+   $Basics = Elm.Basics.make(_elm),
+   $Color = Elm.Color.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Native$Text = Elm.Native.Text.make(_elm);
+   var markdown = $Native$Text.markdown;
+   var justified = $Native$Text.justified;
+   var centered = $Native$Text.centered;
+   var rightAligned = $Native$Text.rightAligned;
+   var leftAligned = $Native$Text.leftAligned;
+   var line = $Native$Text.line;
+   var italic = $Native$Text.italic;
+   var bold = $Native$Text.bold;
+   var color = $Native$Text.color;
+   var height = $Native$Text.height;
+   var link = $Native$Text.link;
+   var monospace = $Native$Text.monospace;
+   var typeface = $Native$Text.typeface;
+   var style = $Native$Text.style;
+   var append = $Native$Text.append;
+   var fromString = $Native$Text.fromString;
+   var empty = fromString("");
+   var concat = function (texts) {
+      return A3($List.foldr,
+      append,
+      empty,
+      texts);
+   };
+   var join = F2(function (seperator,
+   texts) {
+      return concat(A2($List.intersperse,
+      seperator,
+      texts));
    });
-   var scale = function (s) {
-      return A6(matrix,
-      s,
-      0,
-      0,
-      s,
-      0,
-      0);
+   var plainText = function (str) {
+      return leftAligned(fromString(str));
    };
-   var scaleX = function (x) {
-      return A6(matrix,
-      x,
-      0,
-      0,
-      1,
-      0,
-      0);
+   var asText = function (value) {
+      return leftAligned(monospace(fromString($Basics.toString(value))));
    };
-   var scaleY = function (y) {
-      return A6(matrix,
-      1,
-      0,
-      0,
-      y,
-      0,
-      0);
-   };
-   var identity = $Native$Transform2D.identity;
-   var Transform2D = {ctor: "Transform2D"};
-   _elm.Transform2D.values = {_op: _op
-                             ,identity: identity
-                             ,matrix: matrix
-                             ,multiply: multiply
-                             ,rotation: rotation
-                             ,translation: translation
-                             ,scale: scale
-                             ,scaleX: scaleX
-                             ,scaleY: scaleY};
-   return _elm.Transform2D.values;
+   var defaultStyle = {_: {}
+                      ,bold: false
+                      ,color: $Color.black
+                      ,height: $Maybe.Nothing
+                      ,italic: false
+                      ,line: $Maybe.Nothing
+                      ,typeface: _L.fromArray([])};
+   var Style = F6(function (a,
+   b,
+   c,
+   d,
+   e,
+   f) {
+      return {_: {}
+             ,bold: d
+             ,color: c
+             ,height: b
+             ,italic: e
+             ,line: f
+             ,typeface: a};
+   });
+   var Through = {ctor: "Through"};
+   var Over = {ctor: "Over"};
+   var Under = {ctor: "Under"};
+   var Text = {ctor: "Text"};
+   _elm.Text.values = {_op: _op
+                      ,Text: Text
+                      ,Under: Under
+                      ,Over: Over
+                      ,Through: Through
+                      ,Style: Style
+                      ,defaultStyle: defaultStyle
+                      ,fromString: fromString
+                      ,empty: empty
+                      ,append: append
+                      ,concat: concat
+                      ,join: join
+                      ,style: style
+                      ,typeface: typeface
+                      ,monospace: monospace
+                      ,link: link
+                      ,height: height
+                      ,color: color
+                      ,bold: bold
+                      ,italic: italic
+                      ,line: line
+                      ,leftAligned: leftAligned
+                      ,rightAligned: rightAligned
+                      ,centered: centered
+                      ,justified: justified
+                      ,plainText: plainText
+                      ,markdown: markdown
+                      ,asText: asText};
+   return _elm.Text.values;
 };
 Elm.Utils = Elm.Utils || {};
 Elm.Utils.make = function (_elm) {
@@ -12472,7 +12020,8 @@ Elm.Utils.make = function (_elm) {
    $Parser$Char = Elm.Parser.Char.make(_elm),
    $Parser$Number = Elm.Parser.Number.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
    var evals = F3(function (lfs,
    env,
    s) {
@@ -12525,7 +12074,11 @@ Elm.Utils.make = function (_elm) {
    $Array.fromList,
    $Parser.some($Parser$Number.digit));
    var parseInp = $Parser.parse(inpP);
-   var emptyEnv = $Basics.always($Result.Err("-666"));
+   var emptyEnv = function (v) {
+      return $Result.Err(A2($Basics._op["++"],
+      $String.fromChar(v),
+      "?"));
+   };
    var envP = function () {
       var addVar = function (env) {
          return A2($Parser.and,
@@ -12551,6 +12104,18 @@ Elm.Utils.make = function (_elm) {
          return $List.head($List.reverse($));
       })(A2($Parser.parseAll,envP,s));
    };
+   var is44 = function (code) {
+      return _U.eq(code,
+      44) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
+   };
+   var onSlash = function (message) {
+      return A3($Html$Events.on,
+      "keydown",
+      A2($Json$Decode.customDecoder,
+      $Html$Events.keyCode,
+      is44),
+      $Basics.always(message));
+   };
    var is13 = function (code) {
       return _U.eq(code,
       13) ? $Result.Ok({ctor: "_Tuple0"}) : $Result.Err("not the right key code");
@@ -12573,6 +12138,8 @@ Elm.Utils.make = function (_elm) {
                        ,flip2: flip2
                        ,onEnter: onEnter
                        ,is13: is13
+                       ,onSlash: onSlash
+                       ,is44: is44
                        ,emptyEnv: emptyEnv
                        ,envP: envP
                        ,parseEnv: parseEnv

@@ -27,7 +27,7 @@ Elm.PLA.make = function (_elm) {
             return $Result.Ok(t._0);
             case "Pro":
             return $Result.fromMaybe(A2($Basics._op["++"],
-              "pro",
+              "p",
               A2($Basics._op["++"],
               $Basics.toString(t._0),
               "?")))(A2($Array.get,
@@ -35,7 +35,7 @@ Elm.PLA.make = function (_elm) {
               s));
             case "Var": return e(t._0);}
          _U.badCase($moduleName,
-         "between lines 132 and 136");
+         "between lines 133 and 137");
       }();
    });
    var relDict = function (relId) {
@@ -117,7 +117,7 @@ Elm.PLA.make = function (_elm) {
                          A2($eval,formula._1,e),
                          _v21._0));}
                     _U.badCase($moduleName,
-                    "between lines 152 and 155");
+                    "between lines 153 and 156");
                  }();
               }();
             case "Exists":
@@ -143,7 +143,7 @@ Elm.PLA.make = function (_elm) {
                                     });
                                  });}
                             _U.badCase($moduleName,
-                            "between lines 158 and 159");
+                            "between lines 159 and 160");
                          }();
                       });
                       var scope = function (x) {
@@ -214,7 +214,7 @@ Elm.PLA.make = function (_elm) {
                    break;}
               break;}
          _U.badCase($moduleName,
-         "between lines 140 and 160");
+         "between lines 141 and 161");
       }();
    });
    var showTerm = function (x) {
@@ -281,22 +281,29 @@ Elm.PLA.make = function (_elm) {
               A2($Basics._op["++"],
               showTerm(x._1),
               " ]"))));
-            case "Rel":
-            return A2($Basics._op["++"],
-              "[.Rel ",
-              A2($Basics._op["++"],
-              x._0,
-              A2($Basics._op["++"],
-              " ",
-              A2($Basics._op["++"],
-              "{(",
-              A2($Basics._op["++"],
-              A2($String.join,
-              ",",
-              A2($List.map,showTerm,x._1)),
-              ")} ]")))));}
+            case "Rel": switch (x._1.ctor)
+              {case "::":
+                 return A2($Basics._op["++"],
+                   "[.Rel ",
+                   A2($Basics._op["++"],
+                   x._0,
+                   A2($Basics._op["++"],
+                   " [.Tup ",
+                   A2($Basics._op["++"],
+                   A3($List.foldl,
+                   F2(function (x,y) {
+                      return A2($Basics._op["++"],
+                      y,
+                      A2($Basics._op["++"],
+                      " ",
+                      showTerm(x)));
+                   }),
+                   showTerm(x._1._0),
+                   x._1._1),
+                   " ] ]"))));}
+              break;}
          _U.badCase($moduleName,
-         "between lines 42 and 57");
+         "between lines 42 and 58");
       }();
    };
    var Conj = F2(function (a,b) {
@@ -360,12 +367,12 @@ Elm.PLA.make = function (_elm) {
       Pred,
       $Parser$Char.lower),
       $Parser$Char.parenthesized(term));
-      var self = $Parser.recursively(function (_v42) {
+      var self = $Parser.recursively(function (_v44) {
          return function () {
-            switch (_v42.ctor)
+            switch (_v44.ctor)
             {case "_Tuple0": return form;}
             _U.badCase($moduleName,
-            "on line 86, column 37 to 41");
+            "on line 87, column 37 to 41");
          }();
       });
       var neg = A2($Parser._op["*>"],

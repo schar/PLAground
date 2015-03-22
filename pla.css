@@ -62,8 +62,8 @@ textarea::-moz-focus-inner {
 
 body {
   /* font-family: 'museo-sans', sans-serif; */
-  font-family: 'Ubuntu Mono', monospace;
-  font-size: 100%;
+  font-family: 'Ubuntu Mono', 'Courier', monospace;
+  font-size: 125%;
   font-weight: 500;
   line-height: 1.5;
   -webkit-font-kerning: normal;
@@ -73,44 +73,33 @@ body {
 }
 
 code {
-  font-family: 'Monaco', 'Courier', monospace;
-  font-size: 16px;
+  font-family: 'Ubuntu Mono', 'Courier', monospace;
   text-align: left;
 }
 
-pre > code::before {
-  content: '> ';
-}
-
-.parse-msg {
-  font-size: 1000%;
+#query {
+  font-weight: 700;
 }
 
 
 /*
 ===============================================================================
-    Color
+    Color, Style
 -------------------------------------------------------------------------------
 */
 
-body {
+body, code, .lf {
   color: black;
 }
 
 a {
-  color: #93a1a1;
+  text-decoration: none;
+  color: #a6a6a6;
 }
 
-code {
-  color: black;
-}
-
-.parse-msg {
+.parse-msg, .ref-msg {
+  font-size: 1000%;
   color: red;
-}
-
-.lf {
-  color: black;
 }
 
 .lf-highlight {
@@ -119,15 +108,80 @@ code {
 }
 
 .lf-inactive {
-  color: #a9a9a9;
+  color: #a6a6a6;
   text-decoration: line-through;
 }
 
+.instructions {
+  color: white;
+  font-weight: normal;
+  font-size: 80%;
+  background: #4d4d4d none repeat scroll 0;
+  opacity: .9;
+}
+
+.instructions h1 {
+  font-size: 1.5em;
+}
+
+#instr-footer {
+  color: #a6a6a6;
+  font-size: 12px;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.inp::before {
+  content: '['
+}
+
+.inp::after {
+  content: ']'
+}
+
+.stack::before {
+  content: '['
+}
+
+.stack::after {
+  content: ']'
+}
+
+.lf-toggle:after {
+  content: '✖';
+  color: #a6a6a6;
+  text-shadow: 0 -1px 0 #bfbfbf;
+}
+
+.lf-toggle:checked:after {
+  color: #85ada7;
+  text-shadow: 0 1px 0 #669991;
+  bottom: 1px;
+}
+
+pre > code::before {
+  content: '> ';
+}
+
+/* #query { */
+/*   color: #85ada7; */
+/* } */
+
+/*
+===============================================================================
+    Layout
+-------------------------------------------------------------------------------
+*/
+
+.lf {
+  min-height: 1.75em;
+}
+
 .lf-toggle {
-  text-align: center;
-  width: 40px;
+  vertical-align: middle;
+  width: 20px;
   height: auto;
   display: inline-block;
+  padding: 1px 0 0 0;
   margin: 0;
   border: none;
   -webkit-appearance: none;
@@ -136,46 +190,67 @@ code {
   appearance: none;
 }
 
-.lf-toggle:after {
-  content: '✖';
-  /* /1* 40 + a couple of pixels visual adjustment *1/ */
-  /* line-height: 43px; */
-  /* font-size: 20px; */
-  color: #d9d9d9;
-  text-shadow: 0 -1px 0 #bfbfbf;
+html, body {
+  min-height: 100%;
 }
 
-.lf-toggle:checked:after {
-  color: #85ada7;
-  text-shadow: 0 1px 0 #669991;
-  bottom: 1px;
-  /* position: relative; */
+body {
+  position: relative;
+}
+ 
+.instructions {
+  width: 100%;
+  max-height: 100%;
+  z-index: 11;
+  position: absolute;
+  overflow: auto;
+  text-align: left;
 }
 
+.instructions-close {
+  margin: 1em 3% 0 0;
+  height: 0;
+  text-align: right;
+}
 
-/*
-===============================================================================
-    Layout
--------------------------------------------------------------------------------
-*/
+.instructions-content {
+  padding: 0 1em 1em 1em;
+}
+
+.instructions-content ul {
+  padding-left: 1em;
+  margin-top: 0;
+}
+
+.instructions h2 {
+  font-size: 1.25em;
+}
+
+#instr-footer {
+  margin: 60px auto 0;
+  text-align: right;
+}
 
 .column-main {
   max-width: 36rem;
+  max-height: 700px;
   margin-right: auto;
   margin-left: auto;
+  position: relative;
   text-align: center;
 }
 
 .parse-msg, .lfs {
-  min-height: 250px;
+  height: 250px;
 }
 
 .lfs {
-  text-align: left;
   display: -webkit-flex;
   display: flex;
   -webkit-flex-direction: column-reverse;
   flex-direction: column-reverse;
+  text-align: left;
+  overflow: auto;
 }
 
 #query {
@@ -183,16 +258,16 @@ code {
 }
 
 .sh {
-  margin-top: 1em;
   padding: 1em 0;
 }
 
 .page-wrap {
   position: relative;
+  padding: 2em;
 }
 
 #stack-hist {
-  max-height: 250px;
+  height: 300px;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
@@ -217,13 +292,6 @@ ul.stack-list {
   margin-right: 5px;
 }
 
-.stack::before {
-  content: '['
-}
-.stack::after {
-  content: ']'
-}
-
 #inp {
   width: 24px;
   text-align: center;
@@ -232,10 +300,4 @@ ul.stack-list {
   width: 45px;
   display: inline-block;
   margin: 10px;
-}
-.inp::before {
-  content: '['
-}
-.inp::after {
-  content: ']'
 }

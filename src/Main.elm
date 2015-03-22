@@ -1,4 +1,3 @@
-import Debug
 -- Basic Data
 import List
 import Array as Ar
@@ -7,6 +6,7 @@ import Result (..)
 -- PLA
 import PLA (..)
 import Utils (..)
+import Instructions
 
 -- Reactive Graphics
 import Signal as Sig
@@ -30,6 +30,7 @@ type alias Model =
   , startStack : Stack
   , parseMsg : Bool
   , refMsg : Maybe String
+  , instructions : Maybe Html
   }
 
 type alias LF =
@@ -47,8 +48,8 @@ defLF form =
 
 defModel : Model
 defModel =
-  { query = "Ex e(x)"
-  , lfHist = [defLF <| Exists (Var 'x') <| Pred 'e' (Var 'x')]
+  { query = ""
+  , lfHist = []
   , envBox = "\n"
   , env = emptyEnv
   -- , lex = defLex
@@ -56,6 +57,7 @@ defModel =
   , startStack = Ar.empty
   , parseMsg = False
   , refMsg = Nothing
+  , instructions = Nothing
   }
 
 
@@ -71,6 +73,7 @@ type Action
   | AccentFormula Int Bool
   | CompileQuery
   | ToggleFormula Int
+  | ToggleInstr
 
 update : Action -> Model -> Model
 update action model =
@@ -118,16 +121,23 @@ update action model =
             Err msg -> {newm | refMsg <- Just msg}
             Ok _ -> {newm | refMsg <- Nothing}
 
+    ToggleInstr ->
+      case model.instructions of
+        Nothing -> {model | instructions <- Just Instructions.instructions}
+        Just _ -> {model | instructions <- Nothing}
+
     CompileQuery ->
       let formula = parseForm model.query
       in  case formula of
-            Err _ -> {model | parseMsg <- True}
+            Err _ -> {model | parseMsg <- True
+                            , refMsg <- Nothing}
             Ok lf ->
               let c = List.foldl1 (flip Conj) <|
                       (List.map .formula <| List.filter .active model.lfHist)
                       ++ [lf]
               in  case eval c model.env model.startStack of
-                    Err msg -> {model | refMsg <- Just msg}
+                    Err msg -> {model | parseMsg <- False
+                                      , refMsg <- Just msg}
                     Ok xxs -> {model | lfHist <- model.lfHist ++ [defLF lf]
                                      , parseMsg <- False
                                      , refMsg <- Nothing}
@@ -139,24 +149,41 @@ update action model =
 
 view : Model -> Html
 view model =
-  div [ class "base-bg base-copy" ]
-    [ div [ class "page-wrap" ]
-      [ div [ class "column-main" ]
-        [ lazy2 dispLFs model.parseMsg model.lfHist
+  div [ class "page-wrap" ]
+    [ div [ class "column-main" ]
+        [ lazy dispInstr model.instructions
+        , lazy2 dispLFs model.parseMsg model.lfHist
         , div [ class "sh" ]
-          [ pre [ ] [ code [ ] [ lazy queryEntry model.query ] ] ]
+            [ pre [ ] [ code [ ] [ lazy queryEntry model.query ] ] ]
         , lazy3 dispStacks
             (model.refMsg, model.lfHist)
             model.env
             (model.startStack, lazy inpEntry model.startBox)
+        , infoFooter
         ]
-      ]
     ]
+    
+
+dispInstr : Maybe Html -> Html
+dispInstr instr =
+  case instr of
+    Nothing -> div [ ] [ ]
+    Just instructions ->
+      div [ class "instructions" ]
+        [ div [ class "instructions-close" ]
+            [ a [ href "#"
+                , onClick (Sig.send updates ToggleInstr)
+                ]
+                [ text "Close" ]
+            ]
+        , div [ class "instructions-content" ]
+            [ instructions ]
+        ]
 
 dispLFs : Bool -> List LF -> Html
 dispLFs msg hist =
   if msg
-     then div [ class "parse-msg" ] [ text "FAIL" ]
+     then div [ class "parse-msg" ] [ text "*" ]
      else 
        div [ class "lfs" ] 
          <| fst
@@ -190,7 +217,7 @@ queryEntry : String -> Html
 queryEntry query =
   input
     [ id "query"
-    , placeholder "Enter expression"
+    , placeholder "Enter expression, e.g. Ex e(x)"
     , value query
     , autofocus True
     , on "input" targetValue (Sig.send updates << UpdateQuery)
@@ -241,6 +268,14 @@ inpEntry inp =
         []
     ]
 
+infoFooter : Html
+infoFooter =
+  footer [ id "instr-footer" ]
+    [ a [ href "#"
+        , onClick (Sig.send updates ToggleInstr)
+        ]
+        [ text "Confused?" ]
+    ]
 
 ------------------------------------------------------------------------------
 -- Fold update events over time

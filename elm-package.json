@@ -10,6 +10,7 @@
     "dependencies": {
         "Dandandan/parser": "5.0.1 <= v < 6.0.0",
         "elm-lang/core": "1.1.1 <= v < 2.0.0",
-        "evancz/elm-html": "2.0.0 <= v < 3.0.0"
+        "evancz/elm-html": "2.0.0 <= v < 3.0.0",
+        "evancz/elm-markdown": "1.1.3 <= v < 2.0.0"
     }
 }
