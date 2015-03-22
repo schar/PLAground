@@ -23,8 +23,9 @@ Elm.Utils.make = function (_elm) {
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $String = Elm.String.make(_elm);
-   var evals = F3(function (lfs,
+   var evals = F4(function (lfs,
    env,
+   dom,
    s) {
       return function () {
          var seq = F2(function (m,
@@ -46,9 +47,10 @@ Elm.Utils.make = function (_elm) {
          lfs);
          var xxs = A2($List.map,
          function (lf) {
-            return A3($PLA.$eval,
+            return A4($PLA.$eval,
             lf,
             env,
+            dom,
             s);
          },
          cs);

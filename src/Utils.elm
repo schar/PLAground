@@ -61,10 +61,11 @@ chunks n xs =
     [] -> []
     _  -> List.take n xs :: chunks n (List.drop n xs)
 
-evals : List Formula -> Env -> Stack -> Result String (List (List Stack))
-evals lfs env s =
+evals : List Formula -> Env -> Int ->
+          Stack -> Result String (List (List Stack))
+evals lfs env dom s =
   let cs = List.scanl1 (flip Conj) lfs
-      xxs = List.map (\lf -> eval lf env s) cs
+      xxs = List.map (\lf -> eval lf env dom s) cs
       seq m m' = m `Result.andThen`
                  \xs -> m' `Result.andThen`
                  \yys -> Ok (xs :: yys)

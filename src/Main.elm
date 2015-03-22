@@ -1,5 +1,6 @@
 -- Basic Data
 import List
+import String
 import Array as Ar
 import Result (..)
 
@@ -25,6 +26,8 @@ type alias Model =
   , lfHist : List LF
   , envBox : String
   , env : Env
+  , domBox : String
+  , domSize: Int
   -- , lex : Lexicon
   , startBox : String
   , startStack : Stack
@@ -52,6 +55,8 @@ defModel =
   , lfHist = []
   , envBox = "\n"
   , env = emptyEnv
+  , domBox = ""
+  , domSize = 4
   -- , lex = defLex
   , startBox = ""
   , startStack = Ar.empty
@@ -70,6 +75,7 @@ type Action
   | UpdateQuery String
   | EditEnv String
   | EditInput String
+  | EditDomain String
   | AccentFormula Int Bool
   | CompileQuery
   | ToggleFormula Int
@@ -97,6 +103,13 @@ update action model =
       in  {model | startStack <- newInp
                  , startBox <- s}
 
+    EditDomain s ->
+      let newDom = case String.toInt s of
+                     Err _ -> model.domSize
+                     Ok n -> if n > 0 then n else model.domSize
+      in  {model | domSize <- newDom
+                 , domBox <- s}       
+
     AccentFormula ind isInFocus ->
       let newlfs =
         fst <|
@@ -117,7 +130,7 @@ update action model =
           newm = {model | lfHist <- List.indexedMap updateLFs model.lfHist}
           c = List.foldl (flip Conj) (Pred 'e' (Con 2)) <|
               List.map .formula <| List.filter .active newm.lfHist
-      in  case eval c newm.env newm.startStack of
+      in  case eval c newm.env newm.domSize newm.startStack of
             Err msg -> {newm | refMsg <- Just msg}
             Ok _ -> {newm | refMsg <- Nothing}
 
@@ -135,7 +148,7 @@ update action model =
               let c = List.foldl1 (flip Conj) <|
                       (List.map .formula <| List.filter .active model.lfHist)
                       ++ [lf]
-              in  case eval c model.env model.startStack of
+              in  case eval c model.env model.domSize model.startStack of
                     Err msg -> {model | parseMsg <- False
                                       , refMsg <- Just msg}
                     Ok xxs -> {model | lfHist <- model.lfHist ++ [defLF lf]
@@ -154,11 +167,14 @@ view model =
         [ lazy dispInstr model.instructions
         , lazy2 dispLFs model.parseMsg model.lfHist
         , div [ class "sh" ]
-            [ pre [ ] [ code [ ] [ lazy queryEntry model.query ] ] ]
+            [ lazy queryEntry model.query
+            , inpEntry 
+            , domEntry 
+            ]
         , lazy3 dispStacks
             (model.refMsg, model.lfHist)
-            model.env
-            (model.startStack, lazy inpEntry model.startBox)
+            model.domSize
+            (model.env, model.startStack)
         , infoFooter
         ]
     ]
@@ -215,30 +231,32 @@ dispLFs msg hist =
 
 queryEntry : String -> Html
 queryEntry query =
-  input
-    [ id "query"
-    , placeholder "Enter expression, e.g. Ex e(x)"
-    , value query
-    , autofocus True
-    , on "input" targetValue (Sig.send updates << UpdateQuery)
-    , onEnter (Sig.send updates CompileQuery)
-    ]
-    []
+  div [ class "query" ]
+  [ input
+      [ id "query"
+      , placeholder "Enter expression, e.g. Ex e(x)"
+      , value query
+      , autofocus True
+      , on "input" targetValue (Sig.send updates << UpdateQuery)
+      , onEnter (Sig.send updates CompileQuery)
+      ]
+      []
+  ]
 
-dispStacks : (Maybe String, List LF) -> Env -> (Stack, Html) -> Html
-dispStacks (msg, lfs) e (start, startbox) =
+dispStacks : (Maybe String, List LF) -> Int -> (Env, Stack) -> Html
+dispStacks (msg, lfs) dom (e, start) =
   case msg of
-    Just m -> div [ class "parse-msg" ] [ text m ]
+    Just m -> div [ class "ref-msg" ] [ text m ]
     Nothing ->
       case List.filter .active lfs of
-        [] -> div [id "stack-hist"] [startbox]
+        [] -> div [id "stack-hist"] [ ]
         _  ->
-          case evals (List.map .formula <| List.filter .active lfs) e start of
-            Err _ -> div [ id "stack-hist" ] [ text "this is impossible" ]
+          case evals (List.map .formula <| List.filter .active lfs)
+               e dom start of
+            Err m -> div [ class "ref-msg" ] [ text m ]
             Ok xxs -> 
               div [id "stack-hist"] <|
-                startbox ::
-                (flip List.indexedMap xxs <|
+                flip List.indexedMap xxs <|
                 \n sl ->
                   div
                     [ class "outputs"
@@ -250,20 +268,31 @@ dispStacks (msg, lfs) e (start, startbox) =
                       _  ->
                         List.map (ul [class "stack-list"]) -- List Html
                         <| chunks 10 -- List (List Html)
-                        <| List.map dispStack sl) -- List Html
+                        <| List.map dispStack sl -- List Html
 
 dispStack : Stack -> Html
 dispStack s =
   li [ class "stack" ] <|
     List.map (text << toString) <| Ar.toList s
 
-inpEntry : String -> Html
-inpEntry inp =
+inpEntry : Html
+inpEntry =
   div [class "inp"]
     [ input
         [ id "inp"
-        , placeholder "s"
+        , placeholder "input"
         , on "input" targetValue (Sig.send updates << EditInput)
+        ]
+        []
+    ]
+
+domEntry : Html
+domEntry =
+  div [class "dom"]
+    [ input
+        [ id "dom"
+        , placeholder "4"
+        , on "input" targetValue (Sig.send updates << EditDomain)
         ]
         []
     ]

@@ -137,8 +137,8 @@ evalTerm t e s = case t of
     fromMaybe ("p" ++ toString p ++ "?") <| Ar.get (Ar.length s - p - 1) s
 
 -- Interpretation function
-eval : Formula -> Env -> Prop
-eval formula e s = case formula of
+eval : Formula -> Env -> Int -> Prop
+eval formula e dom s = case formula of
   Pred a b ->
     let predPLA f n s = if f n then [s] else []
     in map3 predPLA (predDict a) (evalTerm b e s) (Ok s)
@@ -147,15 +147,15 @@ eval formula e s = case formula of
     in map4 relPLA (relDict a) (evalTerm b e s) (evalTerm c e s) (Ok s)
   Neg f ->
     let negPLA ss s = if List.isEmpty ss then [s] else []
-    in map2 negPLA (eval f e s) (Ok s)
+    in map2 negPLA (eval f e dom s) (Ok s)
   Conj f1 f2 ->
     let mplus m m' = m `andThen` \xs -> m' `andThen` \ys -> Ok (xs ++ ys)
-    in case eval f1 e s of
+    in case eval f1 e dom s of
          Err msg -> Err msg
-         Ok  ls  -> List.foldr mplus (Ok []) <| List.map (eval f2 e) ls
+         Ok  ls  -> List.foldr mplus (Ok []) <| List.map (eval f2 e dom) ls
   Exists (Var v) f ->
-    let scope = \x -> eval f (switch e v x)
+    let scope = \x -> eval f (switch e v x) dom
         mplus (m,x) m' =
           m `andThen` \xs -> m' `andThen` \ys ->
             Ok (List.map (Ar.push x) xs ++ ys)
-    in List.foldr mplus (Ok []) <| List.map (\x -> (scope x s, x)) domain
+    in List.foldr mplus (Ok []) <| List.map (\x -> (scope x s, x)) [1..dom]

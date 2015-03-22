@@ -80,9 +80,9 @@ Elm.PLA.make = function (_elm) {
       return _U.eq(u,
       $var) ? $Result.Ok(x) : e(u);
    });
-   var domain = _L.range(1,4);
-   var $eval = F3(function (formula,
+   var $eval = F4(function (formula,
    e,
+   dom,
    s) {
       return function () {
          switch (formula.ctor)
@@ -103,9 +103,10 @@ Elm.PLA.make = function (_elm) {
                     });
                  });
                  return function () {
-                    var _v21 = A3($eval,
+                    var _v21 = A4($eval,
                     formula._0,
                     e,
+                    dom,
                     s);
                     switch (_v21.ctor)
                     {case "Err":
@@ -114,7 +115,7 @@ Elm.PLA.make = function (_elm) {
                        return A2($List.foldr,
                          mplus,
                          $Result.Ok(_L.fromArray([])))(A2($List.map,
-                         A2($eval,formula._1,e),
+                         A3($eval,formula._1,e,dom),
                          _v21._0));}
                     _U.badCase($moduleName,
                     "between lines 153 and 156");
@@ -147,9 +148,10 @@ Elm.PLA.make = function (_elm) {
                          }();
                       });
                       var scope = function (x) {
-                         return A2($eval,
+                         return A3($eval,
                          formula._1,
-                         A3($switch,e,formula._0._0,x));
+                         A3($switch,e,formula._0._0,x),
+                         dom);
                       };
                       return A2($List.foldr,
                       mplus,
@@ -159,7 +161,7 @@ Elm.PLA.make = function (_elm) {
                                 ,_0: A2(scope,x,s)
                                 ,_1: x};
                       },
-                      domain));
+                      _L.range(1,dom)));
                    }();}
               break;
             case "Neg": return function () {
@@ -169,7 +171,7 @@ Elm.PLA.make = function (_elm) {
                  });
                  return A3($Result.map2,
                  negPLA,
-                 A3($eval,formula._0,e,s),
+                 A4($eval,formula._0,e,dom,s),
                  $Result.Ok(s));
               }();
             case "Pred":
@@ -217,6 +219,7 @@ Elm.PLA.make = function (_elm) {
          "between lines 141 and 161");
       }();
    });
+   var domain = _L.range(1,4);
    var showTerm = function (x) {
       return function () {
          switch (x.ctor)
