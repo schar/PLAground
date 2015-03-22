@@ -50,7 +50,7 @@ parseEnv : String -> Result String Env
 parseEnv s = Result.map (List.head << List.reverse) <| parseAll envP s
 
 inpP : Parser Stack
-inpP = Ar.fromList <$> some digit
+inpP = Ar.fromList <$> many digit
 
 parseInp : String -> Result String Stack
 parseInp = parse inpP

@@ -73,7 +73,7 @@ Elm.Utils.make = function (_elm) {
    });
    var inpP = A2($Parser._op["<$>"],
    $Array.fromList,
-   $Parser.some($Parser$Number.digit));
+   $Parser.many($Parser$Number.digit));
    var parseInp = $Parser.parse(inpP);
    var emptyEnv = function (v) {
       return $Result.Err(A2($Basics._op["++"],
