@@ -271,9 +271,16 @@ body {
 }
 
 .outputs {
-  margin: 0 10px;
+  margin: 0;
+  padding: 0 10px;
   display: inline-block;
   vertical-align: middle;
+  border-right: 2px solid #a6a6a6;
+  border-left: 2px solid transparent;
+}
+
+.outputs:last-child {
+  border-right: none;
 }
 
 ul.stack-list {
