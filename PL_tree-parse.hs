@@ -36,7 +36,7 @@ helper incomingState = do
 
 showState :: [Stack] -> String
 showState [] = ""
-showState (x:[]) = " " ++ show x
+showState [x] = " " ++ show x
 showState (x:xs) = " " ++ show x ++ "\n" ++ showState xs
 
 data Term = Con Char | Var Char | Pro String
@@ -45,6 +45,7 @@ data Formula = Pred(Char, Term)
              | Neg Formula
              | Exists(Term, Formula)
              | Conj(Formula, Formula)
+             | Disj(Formula, Formula)
              | None
 
 -- pretty printing
@@ -66,6 +67,8 @@ instance Show Formula where
       "[.Exists " ++ show v ++ " " ++ show f ++ " ]"
     Conj(f1, f2) ->
       "[.Conj " ++ show f1 ++ " " ++ show f2 ++ " ]"
+    Disj(f1, f2) ->
+      "[.Disj " ++ show f1 ++ " " ++ show f2 ++ " ]"
     None -> "SORRY, couldn't parse that!! (╯°□°）╯︵ ┻━┻"
 
 
@@ -167,6 +170,13 @@ form =
           lit ')' `bind` \_ ->
             ret $ Conj(a, b))
   `plus`
+  (lit '(' `bind` \_ ->
+    form `bind` \a ->
+      lit '|' `bind` \_ ->
+        form `bind` \b ->
+          lit ')' `bind` \_ ->
+            ret $ Disj(a, b))
+  `plus`
   (neg `bind` \_ ->
     form `bind` \a ->
         ret $ Neg a)
@@ -178,7 +188,6 @@ form =
 
 -- fix: atm, any bad thing after a legit parse will just be ignored
 -- e.g. if you don't consume every string, you fail....
-
 
 -- IO
 -- nice test case: (~  ((Ex (~e( x) )) & o ( p0  ) ))
@@ -223,6 +232,8 @@ eval x e s = case x of
     (negP $ eval f e) s
   Conj(f1, f2) ->
     andP (eval f1 e) (eval f2 e) s
+  Disj(f1, f2) ->
+    concat [eval f1 e s, eval f2 e s]
   Exists(Var v, f) ->
     exP (\n -> eval f (switch e n v)) s
   Exists(_,_) ->
@@ -253,7 +264,7 @@ interpret input = (eval $ gimme $ parse input) (\_ -> -666)
 -- tree pretty-printing
 -- first parse into string tree
 termTree :: Term -> Tree String
-termTree term = case term of
+termTree t = case t of
   Con x -> Node [x] []
   Var x -> Node [x] []
   Pro x -> Node x []
@@ -261,15 +272,18 @@ termTree term = case term of
 toStringTree :: Formula -> Tree String
 toStringTree tree = case tree of
   Pred(a, b) -> Node "Formula" [ Node [a] []
-                            , termTree b ]
-  Rel(a, (b, c)) -> Node "Formula" [ Node "eq" []
-                               , Node "Pair" [ termTree b
-                                             , termTree c ] ]
+                               , termTree b ]
+  Rel(_, (b, c)) -> Node "Formula" [ Node "eq" []
+                                   , Node "Pair" [ termTree b
+                                                 , termTree c ] ]
   Neg f -> Node "Formula" [ Node "~" []
                           , toStringTree f ]
   Conj(f1, f2) -> Node "Formula" [ toStringTree f1
-                              , Node "&" []
-                              , toStringTree f2 ]
+                                 , Node "&" []
+                                 , toStringTree f2 ]
+  Disj(f1, f2) -> Node "Formula" [ toStringTree f1
+                                 , Node "v" []
+                                 , toStringTree f2 ]
   Exists(Var v, f) -> Node "Formula" [ termTree . Pro $ "Ǝ" ++ [v]
                                      , toStringTree f] -- hack here, using
                                                        -- Pro constructor
