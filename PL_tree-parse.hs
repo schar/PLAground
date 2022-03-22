@@ -2,7 +2,7 @@ module Main (main) where
 
 import           Data.Char
 import           Data.Tree
-import           Data.Tree.Pretty
+--import           Data.Tree.Pretty
 import           System.Console.Haskeline
 
 main :: IO ()
@@ -35,8 +35,8 @@ helper incomingState = do
       helper (concat [interpret input s | s <- incomingState])
 
 showState :: [Stack] -> String
-showState [] = ""
-showState [x] = " " ++ show x
+showState []     = ""
+showState [x]    = " " ++ show x
 showState (x:xs) = " " ++ show x ++ "\n" ++ showState xs
 
 data Term = Con Char | Var Char | Pro String
@@ -90,7 +90,7 @@ m `plus` n = \s -> m s ++ n s
 
 -- item
 item :: M Char
-item "" = []
+item ""     = []
 item (x:xs) = [(x, xs)]
 
 -- filtering
@@ -198,7 +198,7 @@ parse :: M Formula
 parse = form . clean
 
 gimme :: [(Formula, String)] -> Formula
-gimme [] = None
+gimme []        = None
 gimme ((x,_):_) = x
 
 -- interpreter
@@ -211,10 +211,10 @@ domain = [0..9]
 
 evalTerm :: Term -> Env -> Stack -> Int
 evalTerm t e s = case t of
-  Con a -> read [a]
-  Var v -> e v
+  Con a     -> read [a]
+  Var v     -> e v
   Pro (_:n) -> reverse s !! read n
-  Pro [] -> 666
+  Pro []    -> 666
 
 switch :: Env -> Int -> Char -> Char -> Int
 switch e x v u = if u == v then x else e u
@@ -233,7 +233,7 @@ eval x e s = case x of
   Conj(f1, f2) ->
     andP (eval f1 e) (eval f2 e) s
   Disj(f1, f2) ->
-    concat [eval f1 e s, eval f2 e s]
+    eval f1 e s ++ eval f2 e s
   Exists(Var v, f) ->
     exP (\n -> eval f (switch e n v)) s
   Exists(_,_) ->
@@ -291,4 +291,4 @@ toStringTree tree = case tree of
   _ -> Node [] []
 
 parseToTree :: String -> String
-parseToTree input = drawVerticalTree . toStringTree . gimme . parse $ input
+parseToTree input = drawTree . toStringTree . gimme . parse $ input
