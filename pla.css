@@ -63,7 +63,7 @@ textarea::-moz-focus-inner {
 body {
   /* font-family: 'museo-sans', sans-serif; */
   font-family: 'Ubuntu Mono', 'Courier', monospace;
-  font-size: 125%;
+  font-size: 100%;
   font-weight: 500;
   line-height: 1.5;
   -webkit-font-kerning: normal;
